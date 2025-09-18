@@ -1,0 +1,1187 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HANIFA MARKET — Prototype</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              mono: ['"Courier New"', 'Courier', 'monospace'],
+            },
+          }
+        }
+      }
+    </script>
+
+    <!-- React UMD + Babel -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+  :root { color-scheme: light; }
+  html, body, #root { height: 100%; }
+  body { background: #fff; }
+
+  /* 1) Шрифт: Athelas Bold (с системными бэкапами) */
+  * { font-family: "Athelas", Georgia, "Times New Roman", serif; font-weight: 700; }
+
+  /* Уменьшаем базовый интервал между абзацами */
+  .flow-gap > p:not(:last-child){ margin-bottom: 0.9rem; }
+
+  .smooth { transition: all .25s ease; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .admin-hot-corner { position: fixed; bottom: 6px; left: 6px; width: 12px; height: 12px; opacity:.15; }
+  .admin-hot-corner:hover { opacity:.5; }
+</style>
+
+
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useMemo, useEffect, useRef } = React;
+
+      /***********************
+       * Helpers & Utilities *
+       ***********************/
+      const LS_KEY = "hanifa_data_v1";
+
+      // Unicode-safe slugify
+      const slugify = (s) => {
+        const str = (s || "").toString().trim().toLowerCase();
+        let out = str
+          .replace(/[^a-z0-9\u0400-\u04FF\s-]/gi, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-+|-+$/g, "");
+        if (!out) out = "item";
+        return out;
+      };
+
+      // Гарантирует уникальность slug внутри бренда (MEAF/LOOKSMAXX).
+      function ensureUniqueSlug(brandObj, baseSlug, skipId = null) {
+        const base = baseSlug || "item";
+        const taken = new Set(
+          (brandObj?.items || [])
+            .filter(i => i && i.id !== skipId)
+            .map(i => (i.slug || "").toString().trim().toLowerCase())
+        );
+        let candidate = base;
+        let n = 2;
+        while (!candidate || taken.has(candidate)) {
+          candidate = `${base}-${n++}`;
+        }
+        return candidate;
+      }
+
+      // Simple SVG dataURL placeholders (sharp, minimal)
+      function svgPlaceholder(w, h, label) {
+        const svg = `
+          <svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' viewBox='0 0 ${w} ${h}'>
+            <rect width='100%' height='100%' fill='white' />
+            <rect x='1' y='1' width='${w-2}' height='${h-2}' fill='none' stroke='black' stroke-width='2'/>
+            <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'
+                  font-family='Courier New, monospace' font-weight='700' font-size='${Math.floor(Math.min(w,h)/12)}' fill='black'>${label}</text>
+          </svg>`;
+        return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      }
+
+      const ph3x4 = (label) => svgPlaceholder(1500, 2000, label || "3:4");
+      const ph2x3 = (label) => svgPlaceholder(2000, 3000, label || "2:3");
+      const ph3x2 = (label) => svgPlaceholder(3000, 2000, label || "3:2");
+      const phWideLogo = (label) => svgPlaceholder(1920, 370, label || "LOGO");
+      const phMidLogo  = (label) => svgPlaceholder(1920, 587, label || "BRAND LOGO");
+      const phTelegram = () => {
+        const svg = `
+          <svg xmlns='http://www.w3.org/2000/svg' width='256' height='256' viewBox='0 0 256 256'>
+            <rect width='100%' height='100%' fill='white'/>
+            <circle cx='128' cy='128' r='120' fill='none' stroke='black' stroke-width='8'/>
+            <path d='M52 128l152-50-40 150-45-60-55-40z' fill='none' stroke='black' stroke-width='8'/>
+            <text x='50%' y='90%' text-anchor='middle' font-family='Courier New, monospace' font-weight='700' font-size='24'>TG</text>
+          </svg>`;
+        return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      };
+
+      function deepClone(o){ return JSON.parse(JSON.stringify(o)); }
+      const uuid = () => (typeof crypto !== 'undefined' && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : (Date.now().toString(36) + Math.random().toString(36).slice(2));
+
+      /****************
+       * Data Store   *
+       ****************/
+      function buildDefaultData() {
+        const textBlocks = [
+  "Блок 1 — Вступление ...",                // №1
+  "Блок 2—4 — объединённый справа от фото ...",            // №2 (бывшие 2–3–4)
+  "Блок 5 — полноширинный ...",             // №3 (бывший 5)
+  "Блок 6—8 — объединённый слева от фото ...",            // №4 (бывшие 6–7–8)
+  "Блок 5-й доп. (необязательный) ...",     // №5 (опциональный до 6-й фото)
+  "Блок 6 — перед 6-й фотографией ...",     // №6 (до 6-й фото)
+  "Блок 7 — после 6-й фотографии ..."       // №7 (новый, после 6-й фото)
+];
+
+
+        function makeItem(name) {
+          const id = uuid();
+          const slug = slugify(name);
+          return {
+            id, name, slug,
+            baseImage: ph3x4(name + " — base"),
+            hoverImage: ph3x4(name + " — hover"),
+            article: {
+              blocks: [...textBlocks],
+              images: [ph3x4("1"), ph3x4("2"), ph3x4("3"), ph3x4("4"), ph3x4("5"), ph3x4("6"), ph3x2("Отзыв 3:2")],
+              wbLink: "https://www.wildberries.ru/catalog/417699610/detail.aspx",
+              // НОВОЕ: оглавления перед 2-м и 6-м блоками
+              tocBefore2: "",
+              tocBefore6: ""
+            }
+          };
+        }
+
+        const MEAF_ITEMS = [
+          "Кофта на молнии белая",
+          "Кофта на молнии розовая",
+          "Кофта на молнии коричневая",
+          "Кофта на молнии серая",
+          "Кофта на молнии чёрная",
+          "Шуба укороченная",
+          "Трикотажный костюм из шерсти",
+          "Джинсы серо-голубые",
+        ].map(makeItem);
+
+        const LOOKS_ITEMS = [
+          "Лонгслив с удлиненным рукавом butter yellow",
+          "Лонгслив с удлиненным рукавом чёрный",
+          "Лонгслив с удлиненным рукавом коричневый",
+          "Лонгслив с удлиненным рукавом белый",
+          "Лонгслив с удлиненным рукавом серый",
+          "Платье флора",
+          "Юбка я азиатским принтом",
+          "Юбка бохо",
+          "Юбка-рубашка",
+          "Джинсы серо-голубые",
+          "Рваные джинсы",
+          "Умный купальник",
+        ].map(makeItem);
+
+        return {
+          site: {
+            hanifaLogo: phWideLogo("HANIFA MARKET"),
+            heroNote: "Выбери бренд своего предмета гардероба:",
+            telegramIcon: phTelegram(),
+            telegramLink: "https://t.me/Hanifa_market_support?ysclid=mfflg9aazs260734497",
+            footerNote: "Собери капсулу из наших айтемов или обратись к нам в чат и мы в этом поможем!",
+            brandsOrder: ["MEAF", "LOOKSMAXX"]
+          },
+          brands: {
+            MEAF: {
+              homeLogoBase: ph3x4("MEAF"),
+              homeLogoHover: ph3x4("MEAF — hover"),
+              brandLogo: phMidLogo("MEAF LOGO"),
+              items: MEAF_ITEMS
+            },
+            LOOKSMAXX: {
+              homeLogoBase: ph3x4("LOOKSMAXX"),
+              homeLogoHover: ph3x4("LOOKSMAXX — hover"),
+              brandLogo: phMidLogo("LOOKSMAXX LOGO"),
+              items: LOOKS_ITEMS
+            }
+          }
+        };
+      }
+
+      const DataStore = {
+        load() {
+          try {
+            const raw = localStorage.getItem(LS_KEY);
+            if (!raw) return null;
+            return JSON.parse(raw);
+          } catch(e) { return null; }
+        },
+        save(data) {
+          localStorage.setItem(LS_KEY, JSON.stringify(data));
+        },
+        reset() {
+          const d = buildDefaultData();
+          this.save(d);
+          return d;
+        },
+        import(jsonText){
+          const d = JSON.parse(jsonText);
+          this.save(d);
+          return d;
+        },
+        export(){
+          return JSON.stringify(this.load() ?? buildDefaultData(), null, 2);
+        }
+      };
+
+      /**************
+       * Router     *
+       **************/
+      function useHashRoute() {
+        const [hash, setHash] = useState(window.location.hash || "#/");
+
+        useEffect(() => {
+          const onHash = () => setHash(window.location.hash || "#/");
+          window.addEventListener("hashchange", onHash);
+          return () => window.removeEventListener("hashchange", onHash);
+        }, []);
+
+        const parts = hash.replace(/^#\//, "").split("/").filter(Boolean);
+        // Routes:
+        // "/": home
+        // "brand/:brand"
+        // "brand/:brand/item/:slug"
+        let route = { name: "home", params: {} };
+        if (parts[0] === "brand" && parts[1]) {
+          if (parts[2] === "item" && parts[3]) {
+            route = { name: "item", params: { brand: decodeURIComponent(parts[1]), slug: decodeURIComponent(parts[3]) } };
+          } else {
+            route = { name: "brand", params: { brand: decodeURIComponent(parts[1]) } };
+          }
+        }
+        return route;
+      }
+
+      const Link = ({ to, children, className }) => (
+        <a href={to} className={className} onClick={(e)=>{ /* default anchor */ }}>{children}</a>
+      );
+
+      /*******************
+       * UI Primitives   *
+       *******************/
+      const Button = ({children, onClick, href, target, className=""}) => {
+        const base = "px-4 py-2 border border-black rounded-2xl smooth hover:-translate-y-0.5 active:translate-y-0 text-sm md:text-base";
+        if (href) return <a href={href} target={target} className={base + " " + className}>{children}</a>;
+        return <button onClick={onClick} className={base + " " + className}>{children}</button>;
+      };
+
+      const AdminField = ({label, children}) => (
+        <div className="mb-4">
+          <div className="mb-2 text-xs md:text-sm opacity-70">{label}</div>
+          {children}
+        </div>
+      );
+
+      const Uploader = ({value, onChange, label, accept="image/*"}) => {
+        const inputRef = useRef(null);
+        const onFile = (file) => {
+          const reader = new FileReader();
+          reader.onload = (e)=> onChange(e.target.result);
+          reader.readAsDataURL(file);
+        };
+        return (
+          <div className="flex gap-3 items-start">
+            <div className="w-28 h-28 border border-black rounded-xl overflow-hidden bg-white flex items-center justify-center">
+              {value ? <img src={value} alt={label || "img"} className="max-w-full max-h-full object-contain" /> : <span className="text-xs opacity-50">нет</span>}
+            </div>
+            <div className="flex flex-col gap-2">
+              <input ref={inputRef} className="hidden" type="file" accept={accept} onChange={(e)=> e.target.files && e.target.files[0] && onFile(e.target.files[0])} />
+              <Button onClick={()=>inputRef.current?.click()}>Загрузить</Button>
+              {value && <Button className="opacity-70" onClick={()=>onChange(null)}>Очистить</Button>}
+            </div>
+          </div>
+        );
+      };
+
+      /****************
+       * Pages        *
+       ****************/
+      function HomePage({data}){
+        const site = data.site;
+        const brands = data.brands;
+        const containerRef = useRef(null);
+        const noteRef = useRef(null);
+        const logoRef = useRef(null);
+        useEffect(()=>{}, []);
+
+        const order = site.brandsOrder || Object.keys(brands);
+        const defaultHero = "Выбери бренд своего предмета гардероба:";
+
+        const BrandLogo = ({brandKey}) => {
+          const b = brands[brandKey];
+          const [src, setSrc] = useState(b.homeLogoBase);
+          return (
+            <Link to={`#/brand/${encodeURIComponent(brandKey)}`} className="block smooth">
+              <div className="relative aspect-[16/9] overflow-hidden  w-[86vw] md:w-[34vw] max-w-[560px]">
+                <img
+                  src={src || ph3x4(brandKey)}
+                  alt={brandKey}
+                  className="w-full h-full object-cover"
+                  onMouseEnter={()=> b.homeLogoHover && setSrc(b.homeLogoHover)}
+                  onMouseLeave={()=> setSrc(b.homeLogoBase)}
+                />
+              </div>
+            </Link>
+          );
+        };
+
+        return (
+          <div className="min-h-screen grid grid-rows-[auto,1fr,auto,1fr,auto,auto]">
+            {/* Row 1: HANIFA MARKET logo at fixed top height */}
+            <div className="w-full flex justify-center pt-6 md:pt-8">
+              <img ref={logoRef} src={site.hanifaLogo || phWideLogo("HANIFA MARKET")} alt="HANIFA MARKET"
+                   className="object-contain max-w-[420px] w-[22vw] min-w-[260px]" />
+            </div>
+
+            {/* Row 2: spacer to keep logo position while centering block below */}
+            <div></div>
+
+            {/* Row 3: one-line note + brand logos centered vertically */}
+            <div className="flex flex-col items-center w-full">
+              <div ref={noteRef} className="text-base md:text-lg text-center mt-6 opacity-80 px-4 leading-tight whitespace-nowrap">
+                {site.heroNote || defaultHero}
+              </div>
+              <div className="w-full flex flex-col md:flex-row items-center justify-center gap-8 md:gap-10 mt-6 relative top-2 md:top-3">
+                {order.map((brandKey) => (
+                  <BrandLogo key={brandKey} brandKey={brandKey} />
+                ))}
+              </div>
+            </div>
+
+            {/* Row 4: spacer to balance bottom area */}
+            <div></div>
+
+            {/* Row 5: Telegram icon (надёжно опускаем ниже независимо от grid) */}
+            <div className="w-full flex flex-col items-center relative top-2 md:top-8">
+              <a href={site.telegramLink} target="_blank" className="smooth transform hover:scale-105">
+                <img src={site.telegramIcon || phTelegram()} alt="Telegram" className="w-32 h-32 md:w-40 md:h-40 object-contain" />
+              </a>
+            </div>
+
+            {/* Row 6: Telegram caption with small gap */}
+            <div className="w-full flex justify-center mb-8 md:mb-12">
+              <div className="text-base md:text-lg text-center opacity-80 px-6 leading-tight mt-4 md:mt-6">
+                <span className="block">В чате мы можем собрать тебе лук</span>
+                <span className="block">или помочь разрешить любую проблему.</span>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function BrandPage({data, brandKey}){
+        const brand = data.brands[brandKey];
+        if (!brand) return <div className="p-6">Бренд не найден.</div>;
+
+        const noteRef = React.useRef(null);
+        const logoRef = React.useRef(null);
+
+        React.useEffect(()=>{
+          function apply() {
+            const logo = logoRef.current;
+            const note = noteRef.current;
+            if (!logo || !note) return;
+            note.style.maxWidth = Math.floor(logo.clientWidth * 1.15) + "px";
+          }
+          apply();
+          window.addEventListener("resize", apply);
+          return ()=>window.removeEventListener("resize", apply);
+        }, []);
+
+        return (
+          <div className="min-h-full flex flex-col">
+            {/* ЛОГОТИП по центру */}
+            <div className="pt-8 md:pt-12 flex flex-col items-center">
+              <div className="w-full flex items-center justify-center">
+                <img
+                  ref={logoRef}
+                  src={brand.brandLogo || phMidLogo(brandKey + " LOGO")}
+                  alt={brandKey}
+                  className="object-contain max-w-[380px] w-[20vw] min-w-[260px]"
+                />
+              </div>
+
+              {/* ПОДПИСЬ + «назад», привязка «назад» к вертикальному центру подписи */}
+              <div className="relative w-full mt-6">
+                <a
+                  href="#/"
+                  className="absolute left-5 md:left-10 top-1/2 -translate-y-1/2
+                             inline-flex items-center gap-2 text-xs md:text-sm
+                             opacity-70 hover:opacity-100 smooth"
+                >
+                  <span className="text-lg leading-none">←</span><span>назад</span>
+                </a>
+
+                {/* Подпись по центру */}
+                <div
+                  ref={noteRef}
+                  className="text-base md:text-lg text-center opacity-80 px-4 whitespace-nowrap mx-auto"
+                >
+                  Выбери свой предмет гардероба:
+                </div>
+              </div>
+            </div>
+
+            {/* Сетка товаров */}
+            <div className="flex-1 mt-6 md:mt-10">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-0">
+                {brand.items.map((item) => (
+                  <GridItemCard key={item.id} brandKey={brandKey} item={item} />
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function GridItemCard({brandKey, item}){
+  const [src, setSrc] = useState(item.baseImage);
+  const [labelVisible, setLabelVisible] = useState(true);
+  const hasHover = Boolean(item.hoverImage);
+
+  const handleEnter = () => {
+    if (hasHover) setSrc(item.hoverImage);
+  };
+  const handleLeave = () => {
+    setSrc(item.baseImage);
+    setLabelVisible(true); // вернуть подпись при уходе курсора
+  };
+  const handleLoad = () => {
+    // Скрываем подпись только когда реально загрузилось hover-изображение
+    if (hasHover && src === item.hoverImage) setLabelVisible(false);
+  };
+
+  return (
+    <Link to={`#/brand/${encodeURIComponent(brandKey)}/item/${encodeURIComponent(item.slug)}`} className="relative group block">
+      <div className="aspect-[3/4] w-full bg-white overflow-hidden">
+        <img
+          src={src || ph3x4(item.name)}
+          alt={item.name}
+          className="w-full h-full object-cover smooth"
+          onMouseEnter={handleEnter}
+          onMouseLeave={handleLeave}
+          onLoad={handleLoad}
+        />
+        {labelVisible && (
+          <div className="absolute bottom-2 left-2 text-[10px] sm:text-xs text-black bg-transparent smooth">
+            {item.name}
+          </div>
+        )}
+      </div>
+    </Link>
+  );
+}
+
+
+      function ItemPage({data, brandKey, slug}){
+        const brand = data.brands[brandKey];
+        if (!brand) return <div className="p-6">Бренд не найден.</div>;
+        const item = brand.items.find(i => i.slug === slug);
+        if (!item) return <div className="p-6">Товар не найден.</div>;
+        const { article } = item;
+
+        const img = (i, fallbackLabel) => article.images?.[i] || ph3x4(fallbackLabel || item.name);
+        const txt = (i) => article.blocks?.[i] || "";
+
+        return (
+          <article className="max-w-[1100px] mx-auto px-4 md:px-6">
+            {/* Заголовок + бренд; «назад» прижат к левому краю окна и выровнен по высоте со строкой бренда */}
+            <header className="mb-6 md:mb-8">
+              <h1 className="text-xl md:text-2xl tracking-tight text-center">{item.name}</h1>
+
+              <FullBleed>
+                <div className="relative w-screen mt-2">
+                  <a
+                    href={`#/brand/${encodeURIComponent(brandKey)}`}
+                    className="absolute left-5 md:left-10 top-1/2 -translate-y-1/2 inline-flex items-center gap-2 text-xs md:text-sm opacity-70 hover:opacity-100 smooth z-10 pointer-events-auto"
+                  >
+                    <span className="text-lg leading-none">←</span><span>назад</span>
+                  </a>
+
+                  <div className="text-[11px] md:text-xs opacity-60 text-center">
+                    <div className="max-w-[1100px] mx-auto px-4 md:px-6">Бренд: {brandKey}</div>
+                  </div>
+                </div>
+              </FullBleed>
+            </header>
+
+            {/* Лид: full-bleed фото */}
+            <FullBleed className="mb-6 md:mb-10">
+              <img src={img(0, "Лид")} alt={`${item.name} — лид`} className="w-screen md:h-[66vh] object-cover" />
+            </FullBleed>
+
+            {/* 1) Блок 1 */}
+            <section className="mb-8 md:mb-12">
+              <Prose className="max-w-[760px] mx-auto">
+                {txt(0) && <p className="mb-0">{txt(0)}</p>}
+              </Prose>
+            </section>
+
+            {/* 2) Фото слева, справа текст 2–3–4 + ОГЛАВЛЕНИЕ ПЕРЕД 2-М */}
+            <section className="mb-8 md:mb-12">
+              <div className="grid grid-cols-12 gap-4 md:gap-6 items-start">
+                <div className="col-span-12 md:col-span-6 order-1">
+                  <Figure src={img(1, "Фото 2")} alt={`${item.name} 2`} />
+                </div>
+
+                <Prose className="col-span-12 md:col-span-6 order-2 flow-gap">
+  {article.tocBefore2 && (
+    <h3 className="text-lg md:text-xl leading-tight mb-3 font-bold tracking-tight text-center mt-3 md:mt-0">{article.tocBefore2}</h3>
+  )}
+
+  {txt(1) && <p>{txt(1)}</p>}
+</Prose>
+
+              </div>
+            </section>
+
+            {/* 3) Текстовый блок 5 */}
+            <section className="mb-8 md:mb-12">
+              <Prose className="max-w-[880px] mx-auto">
+  {txt(2) && <p className="mb-0">{txt(2)}</p>}
+</Prose>
+
+            </section>
+
+            {/* 4) Две фотографии */}
+            <section className="mb-8 md:mb-12">
+              <FigurePair
+                left={{  src: img(2, "Фото 3"), alt: `${item.name} 3` }}
+                right={{ src: img(3, "Фото 4"), alt: `${item.name} 4` }}
+              />
+            </section>
+
+            {/* 6) Фото справа, слева текст 6–7–8 + ОГЛАВЛЕНИЕ ПЕРЕД 6-М */}
+            <section className="mb-8 md:mb-12">
+              <div className="grid grid-cols-12 gap-4 md:gap-6 items-start">
+                <Prose className="col-span-12 md:col-span-6 order-2 md:order-1 flow-gap">
+  {article.tocBefore6 && (
+    <h3 className="text-lg md:text-xl leading-tight mb-3 font-bold tracking-tight text-center mt-3 md:mt-0">{article.tocBefore6}</h3>
+  )}
+
+  {txt(3) && <p>{txt(3)}</p>}
+</Prose>
+
+
+                <div className="col-span-12 md:col-span-6 order-1 md:order-2">
+                  <Figure src={img(4, "Фото 5")} alt={`${item.name} 5`} />
+                </div>
+              </div>
+            </section>
+
+            {/* 8) Текстовый блок 9 */}
+            {txt(8) && (
+              <section className="mb-8 md:mb-12">
+                <Prose className="max-w-[880px] mx-auto">
+                  <p className="mb-0">{txt(8)}</p>
+                </Prose>
+              </section>
+            )}
+
+            {/* 9) Текстовый блок 10 */}
+            {txt(9) && (
+              <section className="mb-8 md:mb-12">
+                <Prose className="max-w-[880px] mx-auto">
+                  <p className="mb-0">{txt(9)}</p>
+                </Prose>
+              </section>
+            )}
+
+            {/* Дополнительные полноширинные тексты до 6-й фотографии (необязательный №5 и обязательный №6) */}
+{txt(4) && (
+  <section className="mb-8 md:mb-12">
+    <Prose className="max-w-[880px] mx-auto">
+      <p className="mb-0">{txt(4)}</p>
+    </Prose>
+  </section>
+)}
+{txt(5) && (
+  <section className="mb-8 md:mb-12">
+    <Prose className="max-w-[880px] mx-auto">
+      <p className="mb-0">{txt(5)}</p>
+    </Prose>
+  </section>
+)}
+
+{/* 6-я фотография */}
+<section className="mb-8 md:mb-12">
+  <Figure src={img(5, "Фото 6")} alt={`${item.name} 6 — крупный кадр`} />
+</section>
+
+{/* НОВОЕ: текстовый блок №7 — сразу после 6-й фотографии */}
+{txt(6) && (
+  <section className="mb-8 md:mb-12">
+    <Prose className="max-w-[880px] mx-auto">
+      <p className="mb-0">{txt(6)}</p>
+    </Prose>
+  </section>
+)}
+
+{/* Атмосферный 3:2 */}
+<section className="mb-10 md:mb-14">
+  <div className="mx-auto aspect-[3/2] w-[880px] max-w-[92vw]">
+    <img src={img(6, "3:2")} alt="Атмосферный кадр" className="w-full h-full object-cover" />
+  </div>
+</section>
+
+            {/* CTA */}
+            <footer className="max-w-[760px] mx-auto border-t border-black/10 pt-8 md:pt-10 pb-8 mb-40 md:mb-48">
+              <div className="text-xs md:text-sm opacity-80 text-center">
+                {(window.__DATA?.site?.footerNote) || "Собери капсулу из наших айтемов или обратись к нам в чат и мы в этом поможем!"}
+              </div>
+              <div className="mt-6 flex justify-center gap-4 md:gap-6">
+                {article.wbLink ? (
+                  <a href={article.wbLink} target="_blank"
+                    className="px-6 md:px-8 py-3 rounded-full border border-black smooth hover:bg-black hover:text-white">
+                    Перейти на WB
+                  </a>
+                ) : null}
+                <a href={(window.__DATA?.site?.telegramLink) || "#"} target="_blank"
+                  className="px-6 md:px-8 py-3 rounded-full border border-black smooth hover:bg-black hover:text-white">
+                  Задать вопрос в Telegram
+                </a>
+              </div>
+            </footer>
+
+          </article>
+        );
+      }
+
+      const FullBleed = ({ children, className = "" }) => (
+        <div className={`relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen ${className}`}>
+          {children}
+        </div>
+      );
+
+      const Figure = ({ src, alt, caption, className = "" }) => (
+        <figure className={className}>
+          <img src={src} alt={alt} className="w-full h-auto object-cover" />
+          {caption && (
+            <figcaption className="mt-2 text-[11px] md:text-xs opacity-60">{caption}</figcaption>
+          )}
+        </figure>
+      );
+
+      const FigurePair = ({ left, right }) => (
+        <div className="grid grid-cols-2 gap-3 md:gap-4">
+          <Figure {...left}  className="col-span-1" />
+          <Figure {...right} className="col-span-1" />
+        </div>
+      );
+
+      const Prose = ({ children, className = "" }) => (
+        <div className={`text-[15px] md:text-base leading-relaxed [&>p]:whitespace-pre-line ${className}`}>
+          {children}
+        </div>
+      );
+
+      /***********************
+       * Admin (modal popup) *
+       ***********************/
+      function AdminModal({open, onClose, data, setData}){
+        const [authenticated, setAuthenticated] = useState(false);
+        const [pass, setPass] = useState("");
+        const [tab, setTab] = useState("home"); // home, brand, item
+        const [brandKey, setBrandKey] = useState(Object.keys(data.brands)[0] || "");
+        const [selectedItemId, setSelectedItemId] = useState(null);
+
+        useEffect(()=>{
+          if (data && data.brands[brandKey]) {
+            const first = data.brands[brandKey].items[0];
+            setSelectedItemId(first?.id || null);
+          }
+        }, [brandKey, open]);
+
+        if (!open) return null;
+
+        const tryLogin = () => {
+          if (pass === "@Hanifassite2025") {
+            setAuthenticated(true);
+            setPass("");
+          } else {
+            alert("Неверный пароль");
+          }
+        };
+
+        const logout = ()=> setAuthenticated(false);
+
+        const save = (next) => {
+          const newData = typeof next === "function" ? next(deepClone(data)) : next;
+          setData(newData);
+          DataStore.save(newData);
+        };
+
+        const brands = Object.keys(data.brands);
+
+        // Brand helpers
+        const brand = data.brands[brandKey];
+        const item = brand?.items.find(i => i.id === selectedItemId) || null;
+
+        const addItem = (name) => {
+          if (!name) return;
+          const id = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
+          const newItem = {
+            id,
+            name,
+            slug: "", // проставим после ensureUniqueSlug внутри save
+            baseImage: ph3x4(name + " — base"),
+            hoverImage: ph3x4(name + " — hover"),
+            article: {
+              blocks: [
+                "Блок 1 — Вступление...",
+                "Блок 2 — Миссия...",
+                "Блок 3 — Материал...",
+                "Блок 4 — Дизайн...",
+                "Блок 5 — Как носить...",
+                "Блок 6 — Доп. детали...",
+                "Блок 7 — Производство...",
+                "Блок 8 — Экология/уход...",
+                "Блок 9 — Стилизация...",
+                "Блок 10 — Заключение..."
+              ],
+              images: [ph3x4("1"), ph3x4("2"), ph3x4("3"), ph3x4("4"), ph3x4("5"), ph3x4("6"), ph3x2("Отзыв 3:2")],
+              wbLink: "",
+              // НОВОЕ: поля оглавлений
+              tocBefore2: "",
+              tocBefore6: ""
+            }
+          };
+          save(d => {
+            const b = d.brands[brandKey];
+            const base = slugify(name);
+            newItem.slug = ensureUniqueSlug(b, base, id);
+            b.items.unshift(newItem);
+            return d;
+          });
+          setSelectedItemId(id);
+        };
+
+        const renameItem = (id, newName) => {
+          save(d => {
+            const b = d.brands[brandKey];
+            const it = b.items.find(i => i.id === id);
+            if (it) {
+              it.name = newName;
+              const base = slugify(newName);
+              it.slug = ensureUniqueSlug(b, base, it.id);
+            }
+            return d;
+          });
+        };
+
+        const replaceItemImage = (id, key, dataUrl) => {
+          save(d => {
+            const it = d.brands[brandKey].items.find(i => i.id === id);
+            if (it) it[key] = dataUrl;
+            return d;
+          });
+        };
+
+        const replaceArticleImage = (idx, dataUrl) => {
+          if (!item) return;
+          save(d => {
+            const it = d.brands[brandKey].items.find(i => i.id === item.id);
+            if (it) it.article.images[idx] = dataUrl;
+            return d;
+          });
+        };
+
+        const setArticleText = (idx, value) => {
+          if (!item) return;
+          save(d => {
+            const it = d.brands[brandKey].items.find(i => i.id === item.id);
+            if (it) it.article.blocks[idx] = value;
+            return d;
+          });
+        };
+
+        const setArticleWB = (value) => {
+          if (!item) return;
+          save(d => {
+            const it = d.brands[brandKey].items.find(i => i.id === item.id);
+            if (it) it.article.wbLink = value;
+            return d;
+          });
+        };
+
+        const exportData = () => {
+          const blob = new Blob([DataStore.export()], {type: "application/json"});
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "hanifa_data_export.json";
+          a.click();
+          URL.revokeObjectURL(url);
+        };
+
+        const importInputRef = useRef(null);
+        const importData = (file) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const d = DataStore.import(e.target.result);
+              setData(d);
+              alert("Импорт успешно завершён");
+            } catch (err) {
+              alert("Ошибка импорта: " + err.message);
+            }
+          };
+          reader.readAsText(file);
+        };
+
+        const resetAll = () => {
+          if (confirm("Сбросить данные к предустановленным?")) {
+            const d = DataStore.reset();
+            setData(d);
+          }
+        };
+
+        return (
+          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+            <div className="bg-white border border-black rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-auto no-scrollbar">
+              <div className="p-4 md:p-6 flex items-center justify-between border-b border-black/10">
+                <div className="text-base md:text-lg">Админ-панель</div>
+                <div className="flex items-center gap-2">
+                  {authenticated && (
+                    <>
+                      <Button onClick={exportData} className="text-xs md:text-sm">Экспорт</Button>
+                      <input ref={importInputRef} type="file" accept="application/json" className="hidden" onChange={(e)=>e.target.files && importData(e.target.files[0])} />
+                      <Button onClick={()=>importInputRef.current?.click()} className="text-xs md:text-sm">Импорт</Button>
+                      <Button onClick={resetAll} className="text-xs md:text-sm opacity-70">Сброс</Button>
+                    </>
+                  )}
+                  <Button onClick={onClose} className="text-xs md:text-sm">Закрыть</Button>
+                </div>
+              </div>
+
+              {!authenticated ? (
+                <div className="p-6">
+                  <div className="mb-4 text-sm opacity-70">
+                    Вход защищён паролем. Для финальной версии перенесите этот модуль на отдельную страницу и удалите триггеры вызова.
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <input type="password" value={pass} onChange={(e)=>setPass(e.target.value)}
+                           placeholder="Пароль" className="border border-black rounded-xl px-3 py-2 text-sm w-64 outline-none"/>
+                    <Button onClick={tryLogin}>Войти</Button>
+                    <div className="text-xs opacity-50">Пароль: @Hanifassite2025</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6">
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    <Button onClick={()=>setTab("home")} className={tab==="home"?"bg-black text-white":""}>Стартовая</Button>
+                    <Button onClick={()=>setTab("brand")} className={tab==="brand"?"bg-black text-white":""}>Страницы брендов</Button>
+                    <Button onClick={()=>setTab("item")} className={tab==="item"?"bg-black text-white":""}>Страницы айтемов</Button>
+                    <Button onClick={logout} className="ml-auto opacity-70">Выйти</Button>
+                  </div>
+
+                  {tab === "home" && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <AdminField label="Логотип HANIFA MARKET (1930x370)">
+                          <Uploader value={data.site.hanifaLogo} onChange={(v)=>save(d=>{d.site.hanifaLogo=v; return d;})} />
+                        </AdminField>
+                        <AdminField label="Телеграм-иконка">
+                          <Uploader value={data.site.telegramIcon} onChange={(v)=>save(d=>{d.site.telegramIcon=v; return d;})} />
+                        </AdminField>
+                        <AdminField label="Ссылка на Telegram (поддержка)">
+                          <input className="border border-black rounded-xl px-3 py-2 text-sm w-full" value={data.site.telegramLink || ""}
+                                 onChange={(e)=>save(d=>{d.site.telegramLink=e.target.value; return d;})} />
+                        </AdminField>
+                      </div>
+                      <div>
+                        <AdminField label="Подпись на главной ('Выбери бренд...')">
+                          <textarea className="border border-black rounded-xl w-full p-3 text-sm h-[88px]" value={data.site.heroNote}
+                                    onChange={(e)=>save(d=>{d.site.heroNote=e.target.value; return d;})}></textarea>
+                        </AdminField>
+                        <AdminField label="Текст футера на страницах товара">
+                          <textarea className="border border-black rounded-xl w-full p-3 text-sm h-[88px]" value={data.site.footerNote}
+                                    onChange={(e)=>save(d=>{d.site.footerNote=e.target.value; return d;})}></textarea>
+                        </AdminField>
+                      </div>
+
+                      <div>
+                        <div className="text-sm mb-2">MEAF — логотипы (базовый и hover)</div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <Uploader value={data.brands.MEAF.homeLogoBase} onChange={(v)=>save(d=>{d.brands.MEAF.homeLogoBase=v; return d;})} />
+                          <Uploader value={data.brands.MEAF.homeLogoHover} onChange={(v)=>save(d=>{d.brands.MEAF.homeLogoHover=v; return d;})} />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm mb-2">LOOKSMAXX — логотипы (базовый и hover)</div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <Uploader value={data.brands.LOOKSMAXX.homeLogoBase} onChange={(v)=>save(d=>{d.brands.LOOKSMAXX.homeLogoBase=v; return d;})} />
+                          <Uploader value={data.brands.LOOKSMAXX.homeLogoHover} onChange={(v)=>save(d=>{d.brands.LOOKSMAXX.homeLogoHover=v; return d;})} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {tab === "brand" && (
+                    <div>
+                      <div className="flex flex-wrap gap-3 mb-6 items-center">
+                        <div className="text-sm">Бренд:</div>
+                        <select className="border border-black rounded-xl px-3 py-2 text-sm"
+                                value={brandKey} onChange={(e)=>setBrandKey(e.target.value)}>
+                          {brands.map(b => <option key={b} value={b}>{b}</option>)}
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <AdminField label="Логотип страницы бренда (1920x587)">
+                          <Uploader value={brand.brandLogo} onChange={(v)=>save(d=>{d.brands[brandKey].brandLogo=v; return d;})} />
+                        </AdminField>
+
+                        <div className="border-t md:border-t-0 md:border-l border-black/10 pl-0 md:pl-6 pt-6 md:pt-0">
+                          <div className="text-sm mb-2">Ассортимент</div>
+                          <div className="flex flex-wrap gap-2 items-center mb-3">
+                            <div className="text-xs opacity-70">Выбор айтема:</div>
+                            <select className="border border-black rounded-xl px-3 py-2 text-sm"
+                                    value={selectedItemId || ""}
+                                    onChange={(e)=>setSelectedItemId(e.target.value)}>
+                              {brand.items.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
+                            </select>
+                          </div>
+
+                          {item && (
+                            <div className="space-y-4">
+                              <AdminField label="Переименовать айтем">
+                                <input className="border border-black rounded-xl px-3 py-2 text-sm w-full"
+                                      value={item.name}
+                                      onChange={(e)=>renameItem(item.id, e.target.value)} />
+                              </AdminField>
+                              <div className="grid grid-cols-2 gap-4">
+                                <Uploader label="Базовое изображение" value={item.baseImage} onChange={(v)=>replaceItemImage(item.id,"baseImage",v)} />
+                                <Uploader label="Hover" value={item.hoverImage} onChange={(v)=>replaceItemImage(item.id,"hoverImage",v)} />
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="mt-6 p-3 border border-dashed border-black rounded-xl">
+                            <div className="text-sm mb-2">Добавить новый айтем</div>
+                            <div className="flex gap-2">
+                              <input id="newItemName" className="border border-black rounded-xl px-3 py-2 text-sm flex-1" placeholder="Название нового айтема" />
+                              <Button onClick={()=>{
+                                const input = document.getElementById("newItemName");
+                                addItem(input.value.trim());
+                                input.value = "";
+                              }}>Создать</Button>
+                            </div>
+                            <div className="text-xs opacity-60 mt-2">
+                              Новый айтем сразу появляется в сетке бренда и получает свою страницу-статью.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {tab === "item" && (
+                    <div>
+                      <div className="flex flex-wrap gap-3 mb-6 items-center">
+                        <div className="text-sm">Бренд:</div>
+                        <select className="border border-black rounded-xl px-3 py-2 text-sm"
+                                value={brandKey} onChange={(e)=>setBrandKey(e.target.value)}>
+                          {brands.map(b => <option key={b} value={b}>{b}</option>)}
+                        </select>
+                        <div className="text-sm">Айтем:</div>
+                        <select className="border border-black rounded-xl px-3 py-2 text-sm"
+                                value={selectedItemId || ""}
+                                onChange={(e)=>setSelectedItemId(e.target.value)}>
+                          {brand.items.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
+                        </select>
+                      </div>
+
+                      {!item ? (
+                        <div className="text-sm opacity-70">Нет выбранного айтема.</div>
+                      ) : (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          <div className="space-y-4">
+
+                            {/* НОВОЕ: поля оглавлений */}
+                            <AdminField label="Оглавление перед блоком 2">
+                              <input
+                                className="border border-black rounded-xl px-3 py-2 text-sm w-full"
+                                value={item.article.tocBefore2 || ""}
+                                onChange={(e) => {
+                                  const v = e.target.value;
+                                  save(d => {
+                                    const it = d.brands[brandKey].items.find(i => i.id === item.id);
+                                    if (it) it.article.tocBefore2 = v;
+                                    return d;
+                                  });
+                                }}
+                              />
+                            </AdminField>
+
+                            <AdminField label="Оглавление перед блоком 6">
+                              <input
+                                className="border border-black rounded-xl px-3 py-2 text-sm w-full"
+                                value={item.article.tocBefore6 || ""}
+                                onChange={(e) => {
+                                  const v = e.target.value;
+                                  save(d => {
+                                    const it = d.brands[brandKey].items.find(i => i.id === item.id);
+                                    if (it) it.article.tocBefore6 = v;
+                                    return d;
+                                  });
+                                }}
+                              />
+                            </AdminField>
+
+                            {/* Редактор 10 текстовых блоков */}
+                            {Array.from({ length: 7 }).map((_, idx) => (
+  <AdminField key={idx} label={`Текстовый блок ${idx + 1}`}>
+    <textarea
+      className="border border-black rounded-xl w-full p-3 text-sm h-[120px]"
+      value={item.article.blocks[idx] || ""}
+      onChange={(e) => setArticleText(idx, e.target.value)}
+    ></textarea>
+  </AdminField>
+))}
+
+
+                            <AdminField label="Ссылка на WB (карточка товара)">
+                              <input
+                                className="border border-black rounded-xl px-3 py-2 text-sm w-full"
+                                value={item.article.wbLink || ""}
+                                onChange={(e) => setArticleWB(e.target.value)}
+                              />
+                            </AdminField>
+                          </div>
+
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              {[0,1,2,3,4,5].map(idx => (
+                                <Uploader key={idx} label={`Фото ${idx+1} (3:4)`} value={item.article.images[idx]}
+                                          onChange={(v)=>replaceArticleImage(idx, v)} />
+                              ))}
+                            </div>
+                            <div>
+                              <div className="text-sm mb-2">Фото 7 (3:2, под отзыв)</div>
+                              <Uploader value={item.article.images[6]} onChange={(v)=>replaceArticleImage(6, v)} />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      /**************
+       * App Shell  *
+       **************/
+      class ErrorBoundary extends React.Component{
+        constructor(props){ super(props); this.state={hasError:false,error:null}; }
+        static getDerivedStateFromError(error){ return {hasError:true,error}; }
+        componentDidCatch(error, info){ console.error("UI error:", error, info); }
+        render(){
+          if(this.state.hasError){
+            return (<div className="fixed inset-0 bg-white z-[100] p-6">
+              <div className="text-lg">Произошла ошибка интерфейса</div>
+              <pre className="text-xs mt-2 whitespace-pre-wrap">{String(this.state.error)}</pre>
+              <button className="mt-4 px-4 py-2 border border-black rounded-2xl" onClick={()=>this.setState({hasError:false,error:null})}>Продолжить</button>
+            </div>);
+          }
+          return this.props.children;
+        }
+      }
+
+      function App(){
+        const [data, setData] = useState(()=> DataStore.load() || DataStore.reset());
+        window.__DATA = data;
+
+        useEffect(() => {
+          const d = deepClone(data);
+          let changed = false;
+
+          Object.values(d.brands).forEach(brand => {
+            // Приводим blocks к новой 7-блочной схеме с объединениями и сохранением порядка
+brand.items.forEach(it => {
+  const a = it.article || (it.article = {});
+  const b = Array.isArray(a.blocks) ? a.blocks.slice() : [];
+
+  const merged = [];
+  merged[0] = b[0] || "";                                      // №1 (бывш. 1)
+  merged[1] = [b[1], b[2], b[3]].filter(Boolean).join("\n\n"); // №2 (объед. 2–4)
+  merged[2] = b[4] || "";                                      // №3 (бывш. 5)
+  merged[3] = [b[5], b[6], b[7]].filter(Boolean).join("\n\n"); // №4 (объед. 6–8)
+  merged[4] = "";                                              // №5 (доп., до 6-й фото) — пустой по умолчанию
+  merged[5] = b[8] || "";                                      // №6 (бывш. 9) — ДО 6-й фото
+  merged[6] = b[9] || "";                                      // №7 (бывш. 10) — ПОСЛЕ 6-й фото
+
+  a.blocks = merged;
+  changed = true;
+
+  if (typeof a.tocBefore2 === "undefined") { a.tocBefore2 = ""; changed = true; }
+  if (typeof a.tocBefore6 === "undefined") { a.tocBefore6 = ""; changed = true; }
+});
+
+
+            // 3) Чиним slug-и и делаем их уникальными
+            const used = new Set();
+            brand.items.forEach(it => {
+              const base = slugify(it.name);
+              let current = (it.slug || "").toString().trim().toLowerCase();
+              if (!current || current === "-") current = base;
+              current = slugify(current);
+              let candidate = current || base || "item";
+              let n = 2;
+              while (!candidate || used.has(candidate)) {
+                candidate = `${base || "item"}-${n++}`;
+              }
+              if (candidate !== it.slug) {
+                it.slug = candidate;
+                changed = true;
+              }
+              used.add(candidate);
+            });
+          });
+
+          if (changed) {
+            DataStore.save(d);
+            setData(d);
+          }
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, []);
+
+        const route = useHashRoute();
+        const [adminOpen, setAdminOpen] = useState(false);
+
+        useEffect(()=>{
+          function onKey(e){
+            if (e.altKey && (e.key.toLowerCase() === "l")) {
+              setAdminOpen(true);
+            }
+          }
+          window.addEventListener("keydown", onKey);
+          return ()=>window.removeEventListener("keydown", onKey);
+        }, []);
+
+        return (
+          <div className="min-h-screen">
+            {route.name === "home" && <HomePage data={data} />}
+            {route.name === "brand" && <BrandPage data={data} brandKey={route.params.brand} />}
+            {route.name === "item" && <ItemPage data={data} brandKey={route.params.brand} slug={route.params.slug} />}
+
+            <button className="admin-hot-corner rounded-full bg-black" title="Admin" onClick={()=>setAdminOpen(true)}></button>
+
+            <ErrorBoundary>
+              <AdminModal open={adminOpen} onClose={()=>setAdminOpen(false)} data={data} setData={setData} />
+            </ErrorBoundary>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>
