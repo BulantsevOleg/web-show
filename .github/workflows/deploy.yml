@@ -6,8 +6,9 @@ on:
   workflow_dispatch: {}
 
 env:
-  S3_BUCKET: ${{ vars.S3_BUCKET }}           # <-- ИМЯ БАКЕТА, не домен
+  S3_BUCKET: ${{ vars.S3_BUCKET }}                 # <-- имя бакета, не домен
   YC_S3_ENDPOINT: https://storage.yandexcloud.net
+  AWS_EC2_METADATA_DISABLED: "true"                # ускоряет awscli в CI
 
 jobs:
   deploy:
@@ -16,15 +17,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install AWS CLI
-        run: sudo apt-get update && sudo apt-get install -y awscli
+      # Устанавливаем Python и AWS CLI (через pip)
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install AWS CLI (via pip)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "awscli<2"   # ставим v1 (v2 через pip не ставится)
+          aws --version
 
       - name: Upload static files from repo root
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_S3_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_S3_SECRET }}
         run: |
-          # Синхронизируем корень репо -> бакет, исключая служебные файлы
           aws s3 sync ./ s3://$S3_BUCKET \
             --endpoint-url=$YC_S3_ENDPOINT \
             --delete --acl public-read \
