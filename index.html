@@ -116,116 +116,329 @@
         ? crypto.randomUUID()
         : (Date.now().toString(36) + Math.random().toString(36).slice(2));
 
-      /****************
-       * Data Store   *
+      // /****************
+      //  * Data Store   *
+      //  ****************/
+      // function buildDefaultData() {
+      //   const textBlocks = [
+      //     "Блок 1 — Вступление ...",                // №1
+      //     "Блок 2—4 — объединённый справа от фото ...",            // №2 (бывшие 2–3–4)
+      //     "Блок 5 — полноширинный ...",             // №3 (бывший 5)
+      //     "Блок 6—8 — объединённый слева от фото ...",            // №4 (бывшие 6–7–8)
+      //     "Блок 5-й доп. (необязательный) ...",     // №5 (опциональный до 6-й фото)
+      //     "Блок 6 — перед 6-й фотографией ...",     // №6 (до 6-й фото)
+      //     "Блок 7 — после 6-й фотографии ..."       // №7 (новый, после 6-й фото)
+      //   ];
+
+
+      //   function makeItem(name) {
+      //     const id = uuid();
+      //     const slug = slugify(name);
+      //     return {
+      //       id, name, slug,
+      //       baseImage: ph3x4(name + " — base"),
+      //       hoverImage: ph3x4(name + " — hover"),
+      //       article: {
+      //         blocks: [...textBlocks],
+      //         images: [ph3x4("1"), ph3x4("2"), ph3x4("3"), ph3x4("4"), ph3x4("5"), ph3x4("6"), ph3x2("Отзыв 3:2")],
+      //         wbLink: "https://www.wildberries.ru/catalog/417699610/detail.aspx",
+      //         // НОВОЕ: оглавления перед 2-м и 6-м блоками
+      //         tocBefore2: "",
+      //         tocBefore6: ""
+      //       }
+      //     };
+      //   }
+
+      //   const MEAF_ITEMS = [
+      //     "Кофта на молнии белая",
+      //     "Кофта на молнии розовая",
+      //     "Кофта на молнии коричневая",
+      //     "Кофта на молнии серая",
+      //     "Кофта на молнии чёрная",
+      //     "Шуба укороченная",
+      //     "Трикотажный костюм из шерсти",
+      //     "Джинсы серо-голубые",
+      //   ].map(makeItem);
+
+      //   const LOOKS_ITEMS = [
+      //     "Лонгслив с удлиненным рукавом butter yellow",
+      //     "Лонгслив с удлиненным рукавом чёрный",
+      //     "Лонгслив с удлиненным рукавом коричневый",
+      //     "Лонгслив с удлиненным рукавом белый",
+      //     "Лонгслив с удлиненным рукавом серый",
+      //     "Платье флора",
+      //     "Юбка я азиатским принтом",
+      //     "Юбка бохо",
+      //     "Юбка-рубашка",
+      //     "Джинсы серо-голубые",
+      //     "Рваные джинсы",
+      //     "Умный купальник",
+      //   ].map(makeItem);
+
+      //   return {
+      //     site: {
+      //       hanifaLogo: phWideLogo("HANIFA MARKET"),
+      //       heroNote: "Выбери бренд своего предмета гардероба:",
+      //       telegramIcon: phTelegram(),
+      //       telegramLink: "https://t.me/Hanifa_market_support?ysclid=mfflg9aazs260734497",
+      //       footerNote: "Собери капсулу из наших айтемов или обратись к нам в чат и мы в этом поможем!",
+      //       brandsOrder: ["MEAF", "LOOKSMAXX"]
+      //     },
+      //     brands: {
+      //       MEAF: {
+      //         homeLogoBase: ph3x4("MEAF"),
+      //         homeLogoHover: ph3x4("MEAF — hover"),
+      //         brandLogo: phMidLogo("MEAF LOGO"),
+      //         items: MEAF_ITEMS
+      //       },
+      //       LOOKSMAXX: {
+      //         homeLogoBase: ph3x4("LOOKSMAXX"),
+      //         homeLogoHover: ph3x4("LOOKSMAXX — hover"),
+      //         brandLogo: phMidLogo("LOOKSMAXX LOGO"),
+      //         items: LOOKS_ITEMS
+      //       }
+      //     }
+      //   };
+      // }
+
+      // const DataStore = {
+      //   load() {
+      //     try {
+      //       const raw = localStorage.getItem(LS_KEY);
+      //       if (!raw) return null;
+      //       return JSON.parse(raw);
+      //     } catch(e) { return null; }
+      //   },
+      //   save(data) {
+      //     localStorage.setItem(LS_KEY, JSON.stringify(data));
+      //   },
+      //   reset() {
+      //     const d = buildDefaultData();
+      //     this.save(d);
+      //     return d;
+      //   },
+      //   import(jsonText){
+      //     const d = JSON.parse(jsonText);
+      //     this.save(d);
+      //     return d;
+      //   },
+      //   export(){
+      //     return JSON.stringify(this.load() ?? buildDefaultData(), null, 2);
+      //   }
+      // };
+
+            /****************
+       * Data Source  *
+       * (no localStorage; static URLs from bucket)
        ****************/
-      function buildDefaultData() {
-        const textBlocks = [
-  "Блок 1 — Вступление ...",                // №1
-  "Блок 2—4 — объединённый справа от фото ...",            // №2 (бывшие 2–3–4)
-  "Блок 5 — полноширинный ...",             // №3 (бывший 5)
-  "Блок 6—8 — объединённый слева от фото ...",            // №4 (бывшие 6–7–8)
-  "Блок 5-й доп. (необязательный) ...",     // №5 (опциональный до 6-й фото)
-  "Блок 6 — перед 6-й фотографией ...",     // №6 (до 6-й фото)
-  "Блок 7 — после 6-й фотографии ..."       // №7 (новый, после 6-й фото)
-];
+      //  function buildStaticData() {
+      //   // БАЗОВЫЙ ПРЕФИКС ДО БАКЕТА
+      //   // Пример: 'https://storage.yandexcloud.net/your-bucket'
+      //   const BUCKET = '';
+      //   const ROOT = BUCKET + '/CONTENT';
 
+      //   // Утилита для сборки путей
+      //   const p = (...args) => args.join('/');
 
-        function makeItem(name) {
-          const id = uuid();
-          const slug = slugify(name);
-          return {
-            id, name, slug,
-            baseImage: ph3x4(name + " — base"),
-            hoverImage: ph3x4(name + " — hover"),
-            article: {
-              blocks: [...textBlocks],
-              images: [ph3x4("1"), ph3x4("2"), ph3x4("3"), ph3x4("4"), ph3x4("5"), ph3x4("6"), ph3x2("Отзыв 3:2")],
-              wbLink: "https://www.wildberries.ru/catalog/417699610/detail.aspx",
-              // НОВОЕ: оглавления перед 2-м и 6-м блоками
-              tocBefore2: "",
-              tocBefore6: ""
-            }
-          };
-        }
+      //   // Главная
+      //   const main = p(ROOT, 'MAIN PAGE');
+      //   // Страницы брендов
+      //   const brandRoot = p(ROOT, 'BRAND PAGE');
+      //   const meafRoot = p(brandRoot, 'MEAF');
+      //   const looksRoot = p(brandRoot, 'LOOKSMAXX');
 
-        const MEAF_ITEMS = [
-          "Кофта на молнии белая",
-          "Кофта на молнии розовая",
-          "Кофта на молнии коричневая",
-          "Кофта на молнии серая",
-          "Кофта на молнии чёрная",
-          "Шуба укороченная",
-          "Трикотажный костюм из шерсти",
-          "Джинсы серо-голубые",
-        ].map(makeItem);
+      //   // ЛОГОТИПЫ брендов на главной
+      //   const MEAF_HOME_BASE   = p(main, 'MEAF LOGO1.jpg');
+      //   const MEAF_HOME_HOVER  = p(main, 'MEAF LOGO HOVER.jpg');
+      //   const LOOKS_HOME_BASE  = p(main, 'LOOKSMAXX LOGO1.png');
+      //   const LOOKS_HOME_HOVER = p(main, 'LOOKSMAXX LOGO HOVER.png');
 
-        const LOOKS_ITEMS = [
-          "Лонгслив с удлиненным рукавом butter yellow",
-          "Лонгслив с удлиненным рукавом чёрный",
-          "Лонгслив с удлиненным рукавом коричневый",
-          "Лонгслив с удлиненным рукавом белый",
-          "Лонгслив с удлиненным рукавом серый",
-          "Платье флора",
-          "Юбка я азиатским принтом",
-          "Юбка бохо",
-          "Юбка-рубашка",
-          "Джинсы серо-голубые",
-          "Рваные джинсы",
-          "Умный купальник",
-        ].map(makeItem);
+      //   // ЛОГОТИПЫ страниц брендов
+      //   const MEAF_BRAND_LOGO  = p(meafRoot, 'LOGO', 'MEAF BRAND PAGE LOGO.png');
+      //   const LOOKS_BRAND_LOGO = p(looksRoot, 'LOGO', 'LOOKSMAXX BRAND PAGE LOGO.png');
 
-        return {
-          site: {
-            hanifaLogo: phWideLogo("HANIFA MARKET"),
-            heroNote: "Выбери бренд своего предмета гардероба:",
-            telegramIcon: phTelegram(),
-            telegramLink: "https://t.me/Hanifa_market_support?ysclid=mfflg9aazs260734497",
-            footerNote: "Собери капсулу из наших айтемов или обратись к нам в чат и мы в этом поможем!",
-            brandsOrder: ["MEAF", "LOOKSMAXX"]
-          },
-          brands: {
-            MEAF: {
-              homeLogoBase: ph3x4("MEAF"),
-              homeLogoHover: ph3x4("MEAF — hover"),
-              brandLogo: phMidLogo("MEAF LOGO"),
-              items: MEAF_ITEMS
-            },
-            LOOKSMAXX: {
-              homeLogoBase: ph3x4("LOOKSMAXX"),
-              homeLogoHover: ph3x4("LOOKSMAXX — hover"),
-              brandLogo: phMidLogo("LOOKSMAXX LOGO"),
-              items: LOOKS_ITEMS
-            }
-          }
-        };
+      //   // Главный логотип и иконка TG
+      //   const HANIFA_LOGO = p(main, 'HANIFA MARKET.png');
+      //   const TG_ICON     = p(main, 'TG ICON копия.png');
+
+      //   // Помощник создания айтема бренда (для сетки бренда)
+      //   function makeBrandItem(brandKey, name, baseFile, hoverFile, brandFolderRoot) {
+      //     const id   = uuid();
+      //     const slug = slugify(name);
+      //     return {
+      //       id, name, slug,
+      //       baseImage: p(brandFolderRoot, baseFile),                // карточка (base)
+      //       hoverImage: hoverFile ? p(brandFolderRoot, hoverFile) : null, // карточка (hover)
+      //       article: {
+      //         // Тексты пока пустые (редактирование без бэкенда не сохраняется)
+      //         blocks: ["", "", "", "", "", "", ""],
+      //         // Изображения для страницы SKU — по умолчанию пусто,
+      //         // подставим ниже для конкретных SKU, где есть папка в CONTENT/SKU PAGE
+      //         images: ["", "", "", "", "", "", ""],
+      //         wbLink: "",
+      //         tocBefore2: "",
+      //         tocBefore6: ""
+      //       }
+      //     };
+      //   }
+
+      //   // --- LOOKSMAXX (список по файлам из структуры) ---
+      //   const looksItems = [
+      //     // имя, base, hover (файлы из CONTENT/BRAND PAGE/LOOKSMAXX)
+      //     ['CHECKEDSKIRT',      'CHECKEDSKIRT.jpg',      'CHECKEDSKIRT HOVER.jpg'],
+      //     ['FLOWERDRESS',       'FLOWERDRESS.jpg',       'FLOWERDRESS HOVER.jpg'],
+      //     ['GOTHICSKIRT',       'GOTHICSKIRT.jpg',       'GOTHICSKIRT HOVER.jpg'],
+      //     ['GREYBAGGY',         'GREYBAGGY.jpg',         'GREYBAGGY HOVER.jpg'],
+      //     ['JAPSKIRT',          'JAPSKIRT.jpg',          'JAPSKIRT HOVER.jpg'],
+      //     ['LONGLONGB',         'LONGLONGB.jpg',         'LONGLONGB HOVER.jpg'],
+      //     ['LONGLONGBR',        'LONGLONGBR.jpg',        'LONGLONGBR HOVER.jpg'],
+      //     ['LONGLONGG',         'LONGLONGG.jpg',         'LONGLONGG HOVER.jpg'],
+      //     ['LONGLONGW',         'LONGLONGW.jpg',         'LONGLONGWHOVER.jpg'],
+      //     ['LONGLONGY',         'LONGLONGY.jpg',         'LONGLONGY HOVER.jpg'],
+      //     ['SWIMSUIT',          'SWIMSUIT.jpg',          'SWIMSUIT HOVER.jpg'],
+      //     ['TUAJEANS',          'TUAJEANS.jpg',          'TUAJEANS HOVER.jpg'],
+      //   ].map(([name, base, hover]) =>
+      //     makeBrandItem('LOOKSMAXX', name, base, hover, looksRoot)
+      //   );
+
+      //   // --- MEAF (список по файлам из структуры) ---
+      //   const meafItems = [
+      //     ['CASHSUITDARK', 'CASHSUITDARK.jpg', 'CASHSUITDARK HOVER.jpg'],
+      //     ['FRUCOAT',      'FRUCOAT.jpg',      'FURCOAT HOVER.jpg'], // (в структуре FURCOAT HOVER.jpg — используем как hover)
+      //     ['GREJEANS',     'GREJEANS.jpg',     'GREYJEANS HOVER.jpg'],
+      //     ['ZIPCOFFEE',    'ZIPCOFFEE.jpg',    'ZIPCOFFEE HOVER.jpg'],
+      //     ['ZIPDARK',      'ZIPDARK.jpg',      'ZIPDARK HOVER.jpg'],
+      //     ['ZIPPINKY',     'ZIPPINKY.jpg',     'ZIPPINKY HOVER.jpg'],
+      //     ['ZIPSMOKE',     'ZIPSMOKE.jpg',     'ZIPSMOKE HOVER.jpg'],
+      //     ['ZIPSNOW',      'ZIPSNOW.jpg',      'ZIPSNOW HOVER.jpg'],
+      //   ].map(([name, base, hover]) =>
+      //     makeBrandItem('MEAF', name, base, hover, meafRoot)
+      //   );
+
+      //   // --- SKU PAGE изображения (папки вида CONTENT/SKU PAGE/<SKU>/1.jpg ... 7.jpg)
+      //   const skuRoot = p(ROOT, 'SKU PAGE');
+
+      //   function applySkuImages(items, skuNames) {
+      //     // Пробегаем нужные SKU и, если айтем с таким name есть, подставляем изображения
+      //     skuNames.forEach((skuName) => {
+      //       const it = items.find(x => (x.name || '').toLowerCase() === skuName.toLowerCase());
+      //       if (!it) return;
+      //       const skuFolder = p(skuRoot, skuName);
+      //       // 1..7.jpg
+      //       const imgs = [1,2,3,4,5,6,7].map(n => p(skuFolder, `${n}.jpg`));
+      //       // первые шесть — вертикали 3:4, седьмая — атмосферная 3:2 (как есть)
+      //       it.article.images = imgs;
+      //     });
+      //   }
+
+      //   // В структуре есть папка для LONGLONGW
+      //   applySkuImages(looksItems, ['LONGLONGW']);
+
+      //   return {
+      //     site: {
+      //       hanifaLogo: HANIFA_LOGO,
+      //       heroNote: "Выбери бренд своего предмета гардероба:",
+      //       telegramIcon: TG_ICON,
+      //       telegramLink: "https://t.me/Hanifa_market_support?ysclid=mfflg9aazs260734497",
+      //       footerNote: "Собери капсулу из наших айтемов или обратись к нам в чат и мы в этом поможем!",
+      //       brandsOrder: ["MEAF", "LOOKSMAXX"]
+      //     },
+      //     brands: {
+      //       MEAF: {
+      //         homeLogoBase: MEAF_HOME_BASE,
+      //         homeLogoHover: MEAF_HOME_HOVER,
+      //         brandLogo: MEAF_BRAND_LOGO,
+      //         items: meafItems
+      //       },
+      //       LOOKSMAXX: {
+      //         homeLogoBase: LOOKS_HOME_BASE,
+      //         homeLogoHover: LOOKS_HOME_HOVER,
+      //         brandLogo: LOOKS_BRAND_LOGO,
+      //         items: looksItems
+      //       }
+      //     }
+      //   };
+      // }
+
+      // // Совместимость с остальным кодом: DataStore без реального сохранения
+      // const DataStore = {
+      //   load() { return buildStaticData(); },
+      //   save(_data) { /* no-op: отключили localStorage */ },
+      //   reset() { return buildStaticData(); },
+      //   import(_jsonText){ return buildStaticData(); },
+      //   export(){ return JSON.stringify(buildStaticData(), null, 2); }
+      // };
+
+            /****************
+       * Data Source (JSON registry в /CONTENT)
+       ****************/
+       async function fetchRegistry() {
+        // Путь относительно index.html (CONTENT лежит в корне рядом)
+        const url = 'registry.json';
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Не удалось загрузить ' + url);
+        const json = await res.json();
+        return normalizeRegistry(json);
       }
 
-      const DataStore = {
-        load() {
-          try {
-            const raw = localStorage.getItem(LS_KEY);
-            if (!raw) return null;
-            return JSON.parse(raw);
-          } catch(e) { return null; }
-        },
-        save(data) {
-          localStorage.setItem(LS_KEY, JSON.stringify(data));
-        },
-        reset() {
-          const d = buildDefaultData();
-          this.save(d);
-          return d;
-        },
-        import(jsonText){
-          const d = JSON.parse(jsonText);
-          this.save(d);
-          return d;
-        },
-        export(){
-          return JSON.stringify(this.load() ?? buildDefaultData(), null, 2);
+      function normalizeRegistry(reg) {
+        const data = deepClone(reg);
+
+        // Подстраховки
+        data.site = data.site || {};
+        if (typeof data.site.heroNote === 'undefined')
+          data.site.heroNote = 'Выбери бренд своего предмета гардероба:';
+        if (typeof data.site.footerNote === 'undefined')
+          data.site.footerNote = 'Собери капсулу из наших айтемов или обратись к нам в чат и мы в этом поможем!';
+
+        data.brands = data.brands || {};
+        for (const brandKey of Object.keys(data.brands)) {
+          const brand = data.brands[brandKey] || {};
+          const used = new Set();
+
+          brand.items = (brand.items || []).map((it) => {
+            const out = { ...it };
+            const base = slugify(out.name || 'item');
+            // Делаем slug уникальным в рамках бренда
+            let candidate = base || 'item';
+            let n = 2;
+            while (!candidate || used.has(candidate)) {
+              candidate = `${base || 'item'}-${n++}`;
+            }
+            used.add(candidate);
+
+            out.id = out.id || uuid();
+            out.slug = out.slug || candidate;
+
+            // Приводим структуру article к 7-блочной схеме
+            const a = out.article || {};
+            const blk = Array.isArray(a.blocks) ? a.blocks : [];
+            out.article = {
+              blocks: Array.from({ length: 7 }, (_, i) => blk[i] ?? ''),
+              images: Array.from({ length: 7 }, (_, i) => (a.images?.[i] ?? '')),
+              wbLink: a.wbLink || '',
+              tocBefore2: a.tocBefore2 || '',
+              tocBefore6: a.tocBefore6 || '',
+            };
+
+            return out;
+          });
+
+          data.brands[brandKey] = brand;
         }
+
+        return data;
+      }
+
+      // Обёртка: работаем «только чтение» из JSON
+      const DataStore = {
+        async load() { return await fetchRegistry(); },
+        save() { /* read-only */ },
+        reset() { return this.load(); },
+        import() { return this.load(); },
+        export() { return Promise.resolve('{}'); }
       };
+
 
       /**************
        * Router     *
@@ -407,21 +620,22 @@
               {/* ПОДПИСЬ + «назад», привязка «назад» к вертикальному центру подписи */}
               <div className="relative w-full mt-6">
                 <a
-                  href="#/"
-                  className="absolute left-5 md:left-10 top-1/2 -translate-y-1/2
-                             inline-flex items-center gap-2 text-xs md:text-sm
-                             opacity-70 hover:opacity-100 smooth"
+                href="#/"
+                className="absolute left-5 md:left-10 top-1/2 -translate-y-1/2
+                          inline-flex items-center gap-2 text-xs md:text-sm
+                          opacity-70 hover:opacity-100 smooth z-10 pointer-events-auto"
                 >
-                  <span className="text-lg leading-none">←</span><span>назад</span>
-                </a>
+                <span className="text-lg leading-none">←</span><span>назад</span>
+              </a>
 
-                {/* Подпись по центру */}
-                <div
-                  ref={noteRef}
-                  className="text-base md:text-lg text-center opacity-80 px-4 whitespace-nowrap mx-auto"
-                >
-                  Выбери свой предмет гардероба:
-                </div>
+              {/* Подпись по центру (клики проходят сквозь) */}
+              <div
+                ref={noteRef}
+                className="text-base md:text-lg text-center opacity-80 px-4 whitespace-nowrap mx-auto pointer-events-none"
+              >
+                Выбери свой предмет гардероба:
+              </div>
+
               </div>
             </div>
 
@@ -1034,16 +1248,14 @@
 
                             {/* Редактор 10 текстовых блоков */}
                             {Array.from({ length: 7 }).map((_, idx) => (
-  <AdminField key={idx} label={`Текстовый блок ${idx + 1}`}>
-    <textarea
-      className="border border-black rounded-xl w-full p-3 text-sm h-[120px]"
-      value={item.article.blocks[idx] || ""}
-      onChange={(e) => setArticleText(idx, e.target.value)}
-    ></textarea>
-  </AdminField>
-))}
-
-
+                            <AdminField key={idx} label={`Текстовый блок ${idx + 1}`}>
+                              <textarea
+                                className="border border-black rounded-xl w-full p-3 text-sm h-[120px]"
+                                value={item.article.blocks[idx] || ""}
+                                onChange={(e) => setArticleText(idx, e.target.value)}
+                              ></textarea>
+                            </AdminField>
+                          ))}
                             <AdminField label="Ссылка на WB (карточка товара)">
                               <input
                                 className="border border-black rounded-xl px-3 py-2 text-sm w-full"
@@ -1096,81 +1308,41 @@
       }
 
       function App(){
-        const [data, setData] = useState(()=> DataStore.load() || DataStore.reset());
-        window.__DATA = data;
-
-        useEffect(() => {
-          const d = deepClone(data);
-          let changed = false;
-
-          Object.values(d.brands).forEach(brand => {
-            // Приводим blocks к новой 7-блочной схеме с объединениями и сохранением порядка
-brand.items.forEach(it => {
-  const a = it.article || (it.article = {});
-  const b = Array.isArray(a.blocks) ? a.blocks.slice() : [];
-
-  const merged = [];
-  merged[0] = b[0] || "";                                      // №1 (бывш. 1)
-  merged[1] = [b[1], b[2], b[3]].filter(Boolean).join("\n\n"); // №2 (объед. 2–4)
-  merged[2] = b[4] || "";                                      // №3 (бывш. 5)
-  merged[3] = [b[5], b[6], b[7]].filter(Boolean).join("\n\n"); // №4 (объед. 6–8)
-  merged[4] = "";                                              // №5 (доп., до 6-й фото) — пустой по умолчанию
-  merged[5] = b[8] || "";                                      // №6 (бывш. 9) — ДО 6-й фото
-  merged[6] = b[9] || "";                                      // №7 (бывш. 10) — ПОСЛЕ 6-й фото
-
-  a.blocks = merged;
-  changed = true;
-
-  if (typeof a.tocBefore2 === "undefined") { a.tocBefore2 = ""; changed = true; }
-  if (typeof a.tocBefore6 === "undefined") { a.tocBefore6 = ""; changed = true; }
-});
-
-
-            // 3) Чиним slug-и и делаем их уникальными
-            const used = new Set();
-            brand.items.forEach(it => {
-              const base = slugify(it.name);
-              let current = (it.slug || "").toString().trim().toLowerCase();
-              if (!current || current === "-") current = base;
-              current = slugify(current);
-              let candidate = current || base || "item";
-              let n = 2;
-              while (!candidate || used.has(candidate)) {
-                candidate = `${base || "item"}-${n++}`;
-              }
-              if (candidate !== it.slug) {
-                it.slug = candidate;
-                changed = true;
-              }
-              used.add(candidate);
-            });
-          });
-
-          if (changed) {
-            DataStore.save(d);
-            setData(d);
-          }
-          // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, []);
-
-        const route = useHashRoute();
+        // 1) ВСЕ хуки — сразу в начале и всегда
+        const [data, setData] = useState(null);
+        const route = useHashRoute();                // ← подняли НАД любыми return
         const [adminOpen, setAdminOpen] = useState(false);
 
-        useEffect(()=>{
-          function onKey(e){
-            if (e.altKey && (e.key.toLowerCase() === "l")) {
-              setAdminOpen(true);
+        // 2) Эффекты — тоже безусловно, внутри уже проверяем данные
+        useEffect(() => {
+          (async () => {
+            try {
+              const registry = await fetchRegistry(); // твоя функция загрузки CONTENT/registry.json
+              setData(registry);
+              window.__DATA = registry;
+            } catch (err) {
+              console.error(err);
             }
-          }
-          window.addEventListener("keydown", onKey);
-          return ()=>window.removeEventListener("keydown", onKey);
+          })();
         }, []);
 
+        useEffect(() => {
+          function onKey(e){ if (e.altKey && e.key.toLowerCase()==='l') setAdminOpen(true); }
+          window.addEventListener('keydown', onKey);
+          return () => window.removeEventListener('keydown', onKey);
+        }, []);
+
+        // 3) РАННИЙ return допускается только ПОСЛЕ вызова всех хуков
+        if (!data) {
+          return <div className="min-h-screen"></div>; // спиннер/скелетон по желанию
+        }
+
+        // 4) Обычный рендер
         return (
           <div className="min-h-screen">
-            {route.name === "home" && <HomePage data={data} />}
+            {route.name === "home"  && <HomePage  data={data} />}
             {route.name === "brand" && <BrandPage data={data} brandKey={route.params.brand} />}
-            {route.name === "item" && <ItemPage data={data} brandKey={route.params.brand} slug={route.params.slug} />}
+            {route.name === "item"  && <ItemPage  data={data} brandKey={route.params.brand} slug={route.params.slug} />}
 
             <button className="admin-hot-corner rounded-full bg-black" title="Admin" onClick={()=>setAdminOpen(true)}></button>
 
@@ -1180,6 +1352,137 @@ brand.items.forEach(it => {
           </div>
         );
       }
+
+
+      // function App(){
+        // const [data, setData] = useState(()=> DataStore.load() || DataStore.reset());
+        // window.__DATA = data;
+
+        // useEffect(() => {
+        //   const d = deepClone(data);
+        //   let changed = false;
+
+        //   Object.values(d.brands).forEach(brand => {
+        //     // Приводим blocks к новой 7-блочной схеме с объединениями и сохранением порядка
+        //     brand.items.forEach(it => {
+        //       const a = it.article || (it.article = {});
+        //       const b = Array.isArray(a.blocks) ? a.blocks.slice() : [];
+
+        //       const merged = [];
+        //       merged[0] = b[0] || "";                                      // №1 (бывш. 1)
+        //       merged[1] = [b[1], b[2], b[3]].filter(Boolean).join("\n\n"); // №2 (объед. 2–4)
+        //       merged[2] = b[4] || "";                                      // №3 (бывш. 5)
+        //       merged[3] = [b[5], b[6], b[7]].filter(Boolean).join("\n\n"); // №4 (объед. 6–8)
+        //       merged[4] = "";                                              // №5 (доп., до 6-й фото) — пустой по умолчанию
+        //       merged[5] = b[8] || "";                                      // №6 (бывш. 9) — ДО 6-й фото
+        //       merged[6] = b[9] || "";                                      // №7 (бывш. 10) — ПОСЛЕ 6-й фото
+
+        //       a.blocks = merged;
+        //       changed = true;
+
+        //       if (typeof a.tocBefore2 === "undefined") { a.tocBefore2 = ""; changed = true; }
+        //       if (typeof a.tocBefore6 === "undefined") { a.tocBefore6 = ""; changed = true; }
+        //     });
+
+
+        //     // 3) Чиним slug-и и делаем их уникальными
+        //     const used = new Set();
+        //     brand.items.forEach(it => {
+        //       const base = slugify(it.name);
+        //       let current = (it.slug || "").toString().trim().toLowerCase();
+        //       if (!current || current === "-") current = base;
+        //       current = slugify(current);
+        //       let candidate = current || base || "item";
+        //       let n = 2;
+        //       while (!candidate || used.has(candidate)) {
+        //         candidate = `${base || "item"}-${n++}`;
+        //       }
+        //       if (candidate !== it.slug) {
+        //         it.slug = candidate;
+        //         changed = true;
+        //       }
+        //       used.add(candidate);
+        //     });
+        //   });
+
+        //   if (changed) {
+        //     DataStore.save(d);
+        //     setData(d);
+        //   }
+        //   // eslint-disable-next-line react-hooks/exhaustive-deps
+        // }, []);
+
+        // const [data, setData] = useState(() => DataStore.load());
+        // window.__DATA = data;
+
+        // // Миграции/сохранения отключены — данные приходят из бакета по URL.
+        // useEffect(() => {
+        //   // Если потребуется подтянуть динамически — место для будущей загрузки.
+        // }, []);
+
+        // const [data, setData] = useState(null);
+
+        // useEffect(() => {
+        //   (async () => {
+        //     try {
+        //       const res = await fetch('CONTENT/registry.json', { cache: 'no-store' });
+        //       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        //       const json = await res.json();
+        //       setData(json);
+        //       window.__DATA = json;
+        //     } catch (e) {
+        //       console.error('Failed to load registry.json', e);
+        //     }
+        //   })();
+        // }, []);
+
+        // if (!data) return <div className="p-6">Загрузка…</div>;
+
+
+        // const route = useHashRoute();
+        // const [adminOpen, setAdminOpen] = useState(false);
+
+        // useEffect(()=>{
+        //   function onKey(e){
+        //     if (e.altKey && (e.key.toLowerCase() === "l")) {
+        //       setAdminOpen(true);
+        //     }
+        //   }
+        //   window.addEventListener("keydown", onKey);
+        //   return ()=>window.removeEventListener("keydown", onKey);
+        // }, []);
+
+        // return (
+        //   <div className="min-h-screen">
+        //     {route.name === "home" && <HomePage data={data} />}
+        //     {route.name === "brand" && <BrandPage data={data} brandKey={route.params.brand} />}
+        //     {route.name === "item" && <ItemPage data={data} brandKey={route.params.brand} slug={route.params.slug} />}
+
+        //     <button className="admin-hot-corner rounded-full bg-black" title="Admin" onClick={()=>setAdminOpen(true)}></button>
+
+        //     <ErrorBoundary>
+        //       <AdminModal open={adminOpen} onClose={()=>setAdminOpen(false)} data={data} setData={setData} />
+        //     </ErrorBoundary>
+        //   </div>
+        // );
+      //   if (!data) {
+      //     return <div className="min-h-screen flex items-center justify-center p-8 text-sm opacity-60">Загрузка…</div>;
+      //   }
+      //   return (
+      //     <div className="min-h-screen">
+      //       {route.name === "home" && <HomePage data={data} />}
+      //       {route.name === "home" && <HomePage data={data} />}
+      //       {route.name === "brand" && <BrandPage data={data} brandKey={route.params.brand} />}
+      //       {route.name === "item" && <ItemPage data={data} brandKey={route.params.brand} slug={route.params.slug} />}
+
+      //       <button className="admin-hot-corner rounded-full bg-black" title="Admin" onClick={()=>setAdminOpen(true)}></button>
+
+      //       <ErrorBoundary>
+      //         <AdminModal open={adminOpen} onClose={()=>setAdminOpen(false)} data={data} setData={setData} />
+      //       </ErrorBoundary>
+      //     </div>
+      //   );
+      // }
 
       ReactDOM.createRoot(document.getElementById("root")).render(<App />);
     </script>

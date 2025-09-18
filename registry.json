@@ -1,0 +1,299 @@
+{
+    "site": {
+      "hanifaLogo": "CONTENT/MAIN PAGE/HANIFA MARKET.png",
+      "heroNote": "Выбери бренд своего предмета гардероба:",
+      "telegramIcon": "CONTENT/MAIN PAGE/TG ICON копия.png",
+      "telegramLink": "https://t.me/Hanifa_market_support?ysclid=mfflg9aazs260734497",
+      "footerNote": "Собери капсулу из наших айтемов или обратись к нам в чат и мы в этом поможем!",
+      "brandsOrder": ["MEAF", "LOOKSMAXX"]
+    },
+    "brands": {
+      "MEAF": {
+        "homeLogoBase": "CONTENT/MAIN PAGE/MEAF LOGO1.jpg",
+        "homeLogoHover": "CONTENT/MAIN PAGE/MEAF LOGO HOVER.jpg",
+        "brandLogo": "CONTENT/BRAND PAGE/MEAF/LOGO/MEAF BRAND PAGE LOGO.png",
+        "items": [
+          {
+            "name": "ZIPSNOW",
+            "baseImage": "CONTENT/BRAND PAGE/MEAF/ZIPSNOW.jpg",
+            "hoverImage": "CONTENT/BRAND PAGE/MEAF/ZIPSNOW HOVER.jpg",
+            "article": {
+              "blocks": ["","","","","","",""],
+              "images": ["","","","","","",""],
+              "wbLink": "",
+              "tocBefore2": "",
+              "tocBefore6": ""
+            }
+          },
+          {
+            "name": "ZIPCOFFEE",
+            "baseImage": "CONTENT/BRAND PAGE/MEAF/ZIPCOFFEE.jpg",
+            "hoverImage": "CONTENT/BRAND PAGE/MEAF/ZIPCOFFEE HOVER.jpg",
+            "article": {
+              "blocks": ["","","","","","",""],
+              "images": ["","","","","","",""],
+              "wbLink": "",
+              "tocBefore2": "",
+              "tocBefore6": ""
+            }
+          },
+          {
+            "name": "ZIPSMOKE",
+            "baseImage": "CONTENT/BRAND PAGE/MEAF/ZIPSMOKE.jpg",
+            "hoverImage": "CONTENT/BRAND PAGE/MEAF/ZIPSMOKE HOVER.jpg",
+            "article": {
+              "blocks": ["","","","","","",""],
+              "images": ["","","","","","",""],
+              "wbLink": "",
+              "tocBefore2": "",
+              "tocBefore6": ""
+            }
+          },
+          {
+            "name": "ZIPPINKY",
+            "baseImage": "CONTENT/BRAND PAGE/MEAF/ZIPPINKY.jpg",
+            "hoverImage": "CONTENT/BRAND PAGE/MEAF/ZIPPINKY HOVER.jpg",
+            "article": {
+              "blocks": ["","","","","","",""],
+              "images": ["","","","","","",""],
+              "wbLink": "",
+              "tocBefore2": "",
+              "tocBefore6": ""
+            }
+          },
+          {
+            "name": "ZIPDARK",
+            "baseImage": "CONTENT/BRAND PAGE/MEAF/ZIPDARK.jpg",
+            "hoverImage": "CONTENT/BRAND PAGE/MEAF/ZIPDARK HOVER.jpg",
+            "article": {
+              "blocks": ["","","","","","",""],
+              "images": ["","","","","","",""],
+              "wbLink": "",
+              "tocBefore2": "",
+              "tocBefore6": ""
+            }
+          },
+          {
+            "name": "FURCOAT",
+            "baseImage": "CONTENT/BRAND PAGE/MEAF/FURCOAT.jpg",
+            "hoverImage": "CONTENT/BRAND PAGE/MEAF/FURCOAT HOVER.jpg",
+            "article": {
+              "blocks": ["","","","","","",""],
+              "images": ["","","","","","",""],
+              "wbLink": "",
+              "tocBefore2": "",
+              "tocBefore6": ""
+            }
+          },
+          {
+            "name": "GREYJEANS",
+            "baseImage": "CONTENT/BRAND PAGE/MEAF/GREYJEANS.jpg",
+            "hoverImage": "CONTENT/BRAND PAGE/MEAF/GREYJEANS HOVER.jpg",
+            "article": {
+              "blocks": ["","","","","","",""],
+              "images": ["","","","","","",""],
+              "wbLink": "",
+              "tocBefore2": "",
+              "tocBefore6": ""
+            }
+          },
+          {
+            "name": "CASHSUITDARK",
+            "baseImage": "CONTENT/BRAND PAGE/MEAF/CASHSUITDARK.jpg",
+            "hoverImage": "CONTENT/BRAND PAGE/MEAF/CASHSUITDARK HOVER.jpg",
+            "article": {
+              "blocks": ["","","","","","",""],
+              "images": ["","","","","","",""],
+              "wbLink": "",
+              "tocBefore2": "",
+              "tocBefore6": ""
+            }
+          }  
+        ]
+      },
+      "LOOKSMAXX": {
+        "homeLogoBase": "CONTENT/MAIN PAGE/LOOKSMAXX LOGO1.png",
+        "homeLogoHover": "CONTENT/MAIN PAGE/LOOKSMAXX LOGO HOVER.png",
+        "brandLogo": "CONTENT/BRAND PAGE/LOOKSMAXX/LOGO/LOOKSMAXX BRAND PAGE LOGO.png",
+        "items": [
+          {
+            "name": "LONGLONGW",
+            "baseImage": "CONTENT/BRAND PAGE/LOOKSMAXX/LONGLONGW.jpg",
+            "hoverImage": "CONTENT/BRAND PAGE/LOOKSMAXX/LONGLONGWHOVER.jpg",
+            "article": {
+              "blocks": ["","","","","","",""],
+              "images": [
+                "CONTENT/SKU PAGE/LONGLONGW/1.jpg",
+                "CONTENT/SKU PAGE/LONGLONGW/2.jpg",
+                "CONTENT/SKU PAGE/LONGLONGW/3.jpg",
+                "CONTENT/SKU PAGE/LONGLONGW/4.jpg",
+                "CONTENT/SKU PAGE/LONGLONGW/5.jpg",
+                "CONTENT/SKU PAGE/LONGLONGW/6.jpg",
+                "CONTENT/SKU PAGE/LONGLONGW/7.jpg"
+              ],
+              "wbLink": "",
+              "tocBefore2": "",
+              "tocBefore6": ""
+            }
+          },
+          {
+          "name": "LONGLONGY",
+          "baseImage": "CONTENT/BRAND PAGE/LOOKSMAXX/LONGLONGY.jpg",
+          "hoverImage": "CONTENT/BRAND PAGE/LOOKSMAXX/LONGLONGY HOVER.jpg",
+          "article": {
+            "blocks": ["","","","","","",""],
+            "images": [
+            ],
+            "wbLink": "",
+            "tocBefore2": "",
+            "tocBefore6": ""
+          }
+        },
+        {
+          "name": "CHECKEDSKIRT",
+          "baseImage": "CONTENT/BRAND PAGE/LOOKSMAXX/CHECKEDSKIRT.jpg",
+          "hoverImage": "CONTENT/BRAND PAGE/LOOKSMAXX/CHECKEDSKIRT HOVER.jpg",
+          "article": {
+            "blocks": ["","","","","","",""],
+            "images": [
+            ],
+            "wbLink": "",
+            "tocBefore2": "",
+            "tocBefore6": ""
+          }
+        },
+        {
+          "name": "FLOWERDRESS",
+          "baseImage": "CONTENT/BRAND PAGE/LOOKSMAXX/FLOWERDRESS.jpg",
+          "hoverImage": "CONTENT/BRAND PAGE/LOOKSMAXX/FLOWERDRESS HOVER.jpg",
+          "article": {
+            "blocks": ["","","","","","",""],
+            "images": [
+            ],
+            "wbLink": "",
+            "tocBefore2": "",
+            "tocBefore6": ""
+          }
+        },
+        {
+          "name": "GREYBAGGY",
+          "baseImage": "CONTENT/BRAND PAGE/LOOKSMAXX/GREYBAGGY.jpg",
+          "hoverImage": "CONTENT/BRAND PAGE/LOOKSMAXX/GREYBAGGY HOVER.jpg",
+          "article": {
+            "blocks": ["","","","","","",""],
+            "images": [
+            ],
+            "wbLink": "",
+            "tocBefore2": "",
+            "tocBefore6": ""
+          }
+        },
+        {
+          "name": "GOTHICSKIRT",
+          "baseImage": "CONTENT/BRAND PAGE/LOOKSMAXX/GOTHICSKIRT.jpg",
+          "hoverImage": "CONTENT/BRAND PAGE/LOOKSMAXX/GOTHICSKIRT HOVER.jpg",
+          "article": {
+            "blocks": ["","","","","","",""],
+            "images": [
+            ],
+            "wbLink": "",
+            "tocBefore2": "",
+            "tocBefore6": ""
+          }
+        },
+        {
+          "name": "JAPSKIRT",
+          "baseImage": "CONTENT/BRAND PAGE/LOOKSMAXX/JAPSKIRT.jpg",
+          "hoverImage": "CONTENT/BRAND PAGE/LOOKSMAXX/JAPSKIRT HOVER.jpg",
+          "article": {
+            "blocks": ["","","","","","",""],
+            "images": [
+            ],
+            "wbLink": "",
+            "tocBefore2": "",
+            "tocBefore6": ""
+          }
+        },
+        {
+          "name": "LONGLONGB",
+          "baseImage": "CONTENT/BRAND PAGE/LOOKSMAXX/LONGLONGB.jpg",
+          "hoverImage": "CONTENT/BRAND PAGE/LOOKSMAXX/LONGLONGB HOVER.jpg",
+          "article": {
+            "blocks": ["","","","","","",""],
+            "images": [
+            ],
+            "wbLink": "",
+            "tocBefore2": "",
+            "tocBefore6": ""
+          }
+        },
+        {
+          "name": "LONGLONGB",
+          "baseImage": "CONTENT/BRAND PAGE/LOOKSMAXX/LONGLONGB.jpg",
+          "hoverImage": "CONTENT/BRAND PAGE/LOOKSMAXX/LONGLONGB HOVER.jpg",
+          "article": {
+            "blocks": ["","","","","","",""],
+            "images": [
+            ],
+            "wbLink": "",
+            "tocBefore2": "",
+            "tocBefore6": ""
+          }
+        },
+        {
+          "name": "LONGLONGBR",
+          "baseImage": "CONTENT/BRAND PAGE/LOOKSMAXX/LONGLONGBR.jpg",
+          "hoverImage": "CONTENT/BRAND PAGE/LOOKSMAXX/LONGLONGBR HOVER.jpg",
+          "article": {
+            "blocks": ["","","","","","",""],
+            "images": [
+            ],
+            "wbLink": "",
+            "tocBefore2": "",
+            "tocBefore6": ""
+          }
+        },
+        {
+          "name": "LONGLONGG",
+          "baseImage": "CONTENT/BRAND PAGE/LOOKSMAXX/LONGLONGG.jpg",
+          "hoverImage": "CONTENT/BRAND PAGE/LOOKSMAXX/LONGLONGG HOVER.jpg",
+          "article": {
+            "blocks": ["","","","","","",""],
+            "images": [
+            ],
+            "wbLink": "",
+            "tocBefore2": "",
+            "tocBefore6": ""
+          }
+        },
+        {
+          "name": "SWIMSUIT",
+          "baseImage": "CONTENT/BRAND PAGE/LOOKSMAXX/SWIMSUIT.jpg",
+          "hoverImage": "CONTENT/BRAND PAGE/LOOKSMAXX/SWIMSUIT HOVER.jpg",
+          "article": {
+            "blocks": ["","","","","","",""],
+            "images": [
+            ],
+            "wbLink": "",
+            "tocBefore2": "",
+            "tocBefore6": ""
+          }
+        },
+        {
+          "name": "TUAJEANS",
+          "baseImage": "CONTENT/BRAND PAGE/LOOKSMAXX/TUAJEANS.jpg",
+          "hoverImage": "CONTENT/BRAND PAGE/LOOKSMAXX/TUAJEANS HOVER.jpg",
+          "article": {
+            "blocks": ["","","","","","",""],
+            "images": [
+            ],
+            "wbLink": "",
+            "tocBefore2": "",
+            "tocBefore6": ""
+          }
+        }
+        ]
+      }
+    }
+  }
+  
