@@ -1,0 +1,47 @@
+name: Deploy to Yandex Object Storage (prod)
+
+on:
+  push:
+    branches: [ main ]     # деплой при пуше в main
+  workflow_dispatch: {}     # и возможность запустить вручную из Actions
+
+env:
+  S3_BUCKET: ${{ vars.S3_BUCKET }}  # имя бакета берём из Repository Variables
+  YC_S3_ENDPOINT: https://storage.yandexcloud.net
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install deps & Build
+        run: |
+          npm ci
+          npm run build        # итоговые файлы должны оказаться в ./dist
+      # ================================================================
+
+      - name: Install AWS CLI
+        run: sudo apt-get update && sudo apt-get install -y awscli
+
+      - name: Upload to Yandex Object Storage
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_S3_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_S3_SECRET }}
+        run: |
+          # если ваш билд НЕ в ./dist, замените путь ниже
+            aws s3 sync ./ s3://$S3_BUCKET \
+              --endpoint-url=$YC_S3_ENDPOINT \
+              --delete --acl public-read \
+              --exclude ".git/*" \
+              --exclude ".github/*" \
+              --exclude "node_modules/*" \
+              --exclude ".gitignore" \
+              --exclude ".DS_Store" \
+              --exclude "*.md" \
+              --exclude "package.json" \
+              --exclude "package-lock.json" \
+              --exclude "yarn.lock" \
+              --cache-control "max-age=300"
