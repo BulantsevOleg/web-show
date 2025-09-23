@@ -1,0 +1,15 @@
+
+> build
+> tsc -b && vite build
+
+src/App.tsx(45,22): error TS2322: Type 'import("/Users/macbook/Tech Projects/hanifa-web/site-new/src/types/registry").Registry' is not assignable to type 'import("/Users/macbook/Tech Projects/hanifa-web/site-new/src/types").Registry'.
+  Types of property 'brands' are incompatible.
+    Type 'Record<string, import("/Users/macbook/Tech Projects/hanifa-web/site-new/src/types/registry").Brand>' is not assignable to type 'Record<string, import("/Users/macbook/Tech Projects/hanifa-web/site-new/src/types").Brand>'.
+      'string' index signatures are incompatible.
+        Type 'import("/Users/macbook/Tech Projects/hanifa-web/site-new/src/types/registry").Brand' is not assignable to type 'import("/Users/macbook/Tech Projects/hanifa-web/site-new/src/types").Brand'.
+          Types of property 'items' are incompatible.
+            Type 'import("/Users/macbook/Tech Projects/hanifa-web/site-new/src/types/registry").Item[]' is not assignable to type 'import("/Users/macbook/Tech Projects/hanifa-web/site-new/src/types").Item[]'.
+              Type 'import("/Users/macbook/Tech Projects/hanifa-web/site-new/src/types/registry").Item' is not assignable to type 'import("/Users/macbook/Tech Projects/hanifa-web/site-new/src/types").Item'.
+                Types of property 'article' are incompatible.
+                  Type 'Article | undefined' is not assignable to type 'Article'.
+                    Type 'undefined' is not assignable to type 'Article'.

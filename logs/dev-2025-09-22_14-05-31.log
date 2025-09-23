@@ -1,0 +1,7 @@
+
+> preview
+> vite preview --port 5501
+
+  ➜  Local:   http://localhost:5501/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
