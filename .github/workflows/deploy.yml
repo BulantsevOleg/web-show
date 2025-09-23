@@ -22,11 +22,14 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
 
       - name: Deploy to Yandex Object Storage
         env:
           VITE_SIGN_URL: ${{ secrets.YANDEX_CLOUD_FUNCTION_SIGN }}
           VITE_COMMIT_URL: ${{ secrets.YANDEX_CLOUD_FUNCTION_COMMIT }}
           VITE_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          
         run: |
-          aws s3 sync dist s3://${{ secrets.YANDEX_BUCKET }} --delete --endpoint-url=https://storage.yandexcloud.net
+          aws s3 sync dist s3://${{ secrets.S3_BUCKET }} --delete --endpoint-url=https://storage.yandexcloud.net
