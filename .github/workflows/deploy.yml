@@ -8,6 +8,10 @@ on:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    env:
+      AWS_EC2_METADATA_DISABLED: "true"
+      AWS_REGION: ru-central1
+      AWS_DEFAULT_REGION: ru-central1
 
     steps:
       - uses: actions/checkout@v3
@@ -31,8 +35,8 @@ jobs:
         run: aws s3 sync dist s3://${{ vars.S3_BUCKET }} --delete --endpoint-url=https://storage.yandexcloud.net
         env:
           S3_BUCKET: ${{ vars.S3_BUCKET }}
-          YC_S3_KEY_ID: ${{ secrets.YC_S3_KEY_ID }}
-          YC_S3_SECRET: ${{ secrets.YC_S3_SECRET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_S3_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_S3_SECRET }}
           AWS_EC2_METADATA_DISABLED: "true"
           
           
