@@ -26,7 +26,7 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
 
       - name: Deploy to Yandex Object Storage
-        run: aws s3 sync dist s3://$S3_BUCKET --delete --endpoint-url=https://storage.yandexcloud.net
+        run: aws s3 sync dist s3://${{ env.S3_BUCKET }} --delete --endpoint-url=https://storage.yandexcloud.net
         env:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           VITE_SIGN_URL: ${{ secrets.YANDEX_CLOUD_FUNCTION_SIGN }}
