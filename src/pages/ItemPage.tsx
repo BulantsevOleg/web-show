@@ -202,7 +202,7 @@ export function ItemPage() {
               rel="noreferrer"
               className="px-6 md:px-8 py-3 rounded-full border border-black hover:bg-black hover:text-white transition"
             >
-              Перейти на WB
+              Купить на WB
             </a>
           ) : null}
           {data.site.telegramLink && (
