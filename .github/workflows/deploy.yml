@@ -39,28 +39,33 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_S3_SECRET }}
           AWS_EC2_METADATA_DISABLED: "true"
 
-      # ⬇️ ДОБАВЛЕННЫЙ ШАГ: создаём 301-редиректы на главную
-      - name: Create marketing redirects (meaf/anomia/looksmaxx → /)
+      # ⬇️ создаём HTML-редиректы (meta+JS) на главную после sync
+      - name: Create marketing redirects (HTML meta+JS)
+        shell: bash
         run: |
-          set -e
+          set -euo pipefail
           ENDPOINT="https://storage.yandexcloud.net"
           TARGET="https://www.hanifamarket.ru/"
+          HTML='<!doctype html><meta charset="utf-8">
+          <title>Redirecting…</title>
+          <link rel="canonical" href="'$TARGET'">
+          <meta http-equiv="refresh" content="0; url='$TARGET'">
+          <a href="'$TARGET'">Redirecting…</a>
+          <script>location.replace("'$TARGET'");</script>'
+          
           # добавляй сюда новые слаги по мере необходимости
           for p in meaf anomia looksmaxx MEAF ANOMIA LOOKSMAXX; do
-            # /brand  → 301 на главную
-            aws s3api put-object \
-              --bucket "${S3_BUCKET}" \
-              --key "${p}" \
-              --website-redirect-location "${TARGET}" \
-              --content-type text/plain \
-              --endpoint-url "${ENDPOINT}"
-            # /brand/ (index.html) → 301 на главную
-            aws s3api put-object \
-              --bucket "${S3_BUCKET}" \
-              --key "${p}/index.html" \
-              --website-redirect-location "${TARGET}" \
-              --content-type text/html \
-              --endpoint-url "${ENDPOINT}"
+            # /brand  (без слеша)
+            printf "%s" "$HTML" | aws s3 cp - "s3://${S3_BUCKET}/${p}" \
+              --content-type "text/html; charset=utf-8" \
+              --cache-control "no-cache, no-store, must-revalidate" \
+              --endpoint-url "$ENDPOINT"
+
+            # /brand/  (index.html)
+            printf "%s" "$HTML" | aws s3 cp - "s3://${S3_BUCKET}/${p}/index.html" \
+              --content-type "text/html; charset=utf-8" \
+              --cache-control "no-cache, no-store, must-revalidate" \
+              --endpoint-url "$ENDPOINT"
           done
         env:
           S3_BUCKET: ${{ vars.S3_BUCKET }}
