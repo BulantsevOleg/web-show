@@ -4,11 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy"
-          content="default-src 'self';
-          img-src 'self' https://storage.yandexcloud.net data:;
-          script-src 'self';
+          content="
+          default-src 'self';
+          script-src 'self' https://mc.yandex.ru 'sha256-mc9ZkSZgK+0TayTVCzGMeeCRYq4iAJZtTv3jP8Y1s1g=';
+          connect-src 'self' https://storage.yandexcloud.net https://functions.yandexcloud.net https://mc.yandex.ru;
+          img-src 'self' https://storage.yandexcloud.net https://mc.yandex.ru data:;
+          font-src 'self' data:;
+          frame-src https://mc.yandex.ru;
           style-src 'self' 'unsafe-inline';
-          connect-src 'self' https://functions.yandexcloud.net https://storage.yandexcloud.net;">
+          base-uri 'self';
+          object-src 'none';
+        ">
     <!-- test commit -->
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
