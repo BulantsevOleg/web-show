@@ -32,7 +32,7 @@ jobs:
           VITE_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
 
       - name: Deploy to Yandex Object Storage
-        run: aws s3 sync dist s3://${{ vars.S3_BUCKET }} --delete --endpoint-url=https://storage.yandexcloud.net
+        run: aws s3 sync dist s3://${{ vars.S3_BUCKET }} --endpoint-url=https://storage.yandexcloud.net --delete --exclude "registry.json" --exclude "CONTENT/*"
         env:
           S3_BUCKET: ${{ vars.S3_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_S3_KEY_ID }}
@@ -52,7 +52,7 @@ jobs:
           <meta http-equiv="refresh" content="0; url='$TARGET'">
           <a href="'$TARGET'">Redirecting…</a>
           <script>location.replace("'$TARGET'");</script>'
-          
+
           # добавляй сюда новые слаги по мере необходимости
           for p in meaf anomia looksmaxx MEAF ANOMIA LOOKSMAXX; do
             # /brand  (без слеша)
