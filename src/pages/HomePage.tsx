@@ -109,7 +109,7 @@ export function HomePage() {
       {/* Row 6: caption */}
       <div className="w-full flex justify-center mb-8 md:mb-12">
         <div className="text-base md:text-lg text-center opacity-80 px-6 leading-tight mt-4 md:mt-6">
-          <span className="block">{data.site.footerNote}</span>
+          <span className="block whitespace-pre-line">{data.site.footerNote}</span>
         </div>
       </div>
     </div>
