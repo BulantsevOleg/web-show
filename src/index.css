@@ -1,14 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import "./styles/fonts.css";
 
 /* ваши глобальные трюки из <style> */
 :root { color-scheme: light; }
 html, body, #root { height: 100%; }
 body { background: #fff; }
 
+/* можно задать шрифт на body через tailwind слой */
+@layer base {
+    html, body { @apply font-sans; }
+  }
 /* Athelas + бэкапы и жирное начертание */
-* { font-family: "Athelas", Georgia, "Times New Roman", serif; font-weight: 700; }
+/* * { font-family: "Athelas", Georgia, "Times New Roman", serif; font-weight: 700; } */
 
 /* переносим вспомогательные классы */
 .flow-gap > p:not(:last-child){ margin-bottom: 0.9rem; }
@@ -17,3 +22,7 @@ body { background: #fff; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .admin-hot-corner { position: fixed; bottom: 6px; left: 6px; width: 12px; height: 12px; opacity:.15; }
 .admin-hot-corner:hover { opacity:.5; }
+
+
+
+
