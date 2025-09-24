@@ -62,7 +62,7 @@ export function BrandPage() {
           </Link>
 
           <div className="text-base md:text-lg text-center opacity-80 px-4 whitespace-nowrap mx-auto">
-            Выбери своё
+            Выбери свой предмет гардероба
           </div>
         </div>
       </div>
