@@ -38,6 +38,32 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.YC_S3_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_S3_SECRET }}
           AWS_EC2_METADATA_DISABLED: "true"
-          
-          
-          
+
+      # ⬇️ ДОБАВЛЕННЫЙ ШАГ: создаём 301-редиректы на главную
+      - name: Create marketing redirects (meaf/anomia/looksmaxx → /)
+        run: |
+          set -e
+          ENDPOINT="https://storage.yandexcloud.net"
+          TARGET="https://www.hanifamarket.ru/"
+          # добавляй сюда новые слаги по мере необходимости
+          for p in meaf anomia looksmaxx MEAF ANOMIA LOOKSMAXX; do
+            # /brand  → 301 на главную
+            aws s3api put-object \
+              --bucket "${S3_BUCKET}" \
+              --key "${p}" \
+              --website-redirect-location "${TARGET}" \
+              --content-type text/plain \
+              --endpoint-url "${ENDPOINT}"
+            # /brand/ (index.html) → 301 на главную
+            aws s3api put-object \
+              --bucket "${S3_BUCKET}" \
+              --key "${p}/index.html" \
+              --website-redirect-location "${TARGET}" \
+              --content-type text/html \
+              --endpoint-url "${ENDPOINT}"
+          done
+        env:
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_S3_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_S3_SECRET }}
+          AWS_EC2_METADATA_DISABLED: "true"
