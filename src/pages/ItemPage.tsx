@@ -191,8 +191,8 @@ export function ItemPage() {
 
       {/* CTA */}
       <footer className="max-w-[760px] mx-auto border-t border-black/10 pt-8 md:pt-10 pb-8 mb-40 md:mb-48">
-        <div className="text-xs md:text-sm opacity-80 text-center">
-          { (data.site.footerNote) || "Собери капсулу из наших айтемов или обратись к нам в чат и мы в этом поможем!" }
+        <div className="text-xs md:text-sm opacity-80 text-center whitespace-pre-line">
+          {data.site.footerNote || "Собери капсулу из наших айтемов\nили обратись к нам в чат и мы в этом поможем!"}
         </div>
         <div className="mt-6 flex justify-center gap-4 md:gap-6">
           {a?.wbLink ? (
