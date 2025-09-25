@@ -164,6 +164,12 @@ export function ItemPage() {
         </div>
       </section>
 
+      {/* Заголовок перед 6 блоком */}
+      {a?.tocBefore6 && (
+        <h3 className="text-lg md:text-xl leading-tight mb-3 font-bold tracking-tight text-center mt-3 md:mt-0">
+          {a.tocBefore6}
+        </h3>
+      )}      
       {txt(5) && (
         <section className="mb-8 md:mb-12">
           <div className="text-[15px] md:text-base leading-relaxed [&>p]:whitespace-pre-line max-w-[880px] mx-auto">
@@ -171,7 +177,6 @@ export function ItemPage() {
           </div>
         </section>
       )}
-
       {/* 6-я фотография */}
       <section className="mb-8 md:mb-12">
         <figure>
