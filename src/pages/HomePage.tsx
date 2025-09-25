@@ -96,7 +96,12 @@ export function HomePage() {
       {/* Row 5: Telegram icon */}
       <div className="w-full flex flex-col items-center relative top-2 md:top-8">
         {site.telegramLink && site.telegramIcon && (
-          <a href={site.telegramLink} target="_blank" rel="noreferrer">
+          <a
+            href={site.telegramLink}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-block transition-transform duration-300 hover:scale-110"
+          >
             <img
               src={assetUrl(site.telegramIcon)}
               alt="Telegram"
@@ -105,6 +110,8 @@ export function HomePage() {
           </a>
         )}
       </div>
+
+
 
       {/* Row 6: caption */}
       <div className="w-full flex justify-center mb-8 md:mb-12">
