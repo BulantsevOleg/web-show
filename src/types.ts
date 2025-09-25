@@ -1,6 +1,8 @@
 // src/types.ts
 export type Article = {
+    tocBefore1?: string;
     tocBefore2?: string;
+    tocBefore5?: string;
     tocBefore6?: string;
     wbLink?: string;
     blocks: string[];   // 7 блоков
