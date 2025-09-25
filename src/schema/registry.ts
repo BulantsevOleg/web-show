@@ -17,7 +17,9 @@ const ArticleSchema = z.object({
   blocks: z.array(z.string()).default([]),
   images: z.array(z.string()).default([]),
   wbLink: z.string().optional(),
+  tocBefore1: z.string().optional(),
   tocBefore2: z.string().optional(),
+  tocBefore5: z.string().optional(),
   tocBefore6: z.string().optional(),
 });
 export type Article = z.infer<typeof ArticleSchema>;
@@ -126,7 +128,9 @@ export function parseAndNormalizeRegistry(json: unknown): Registry {
         blocks: Array.isArray(a.blocks) ? a.blocks : [],
         images: Array.isArray(a.images) ? a.images : [],
         wbLink: a.wbLink ?? it.wbLink ?? undefined,
+        tocBefore1: a.tocBefore1 ?? "",
         tocBefore2: a.tocBefore2 ?? "",
+        tocBefore5: a.tocBefore5 ?? "",
         tocBefore6: a.tocBefore6 ?? "",
       };
 
