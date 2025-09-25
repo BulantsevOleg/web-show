@@ -143,8 +143,8 @@ export function ItemPage() {
 
       {/* 6) Фото справа, слева текст (+ оглавление) */}
       {/* Текст 5 + Фото 5 — в одной секции, выровнены по центру */}
-      <section className="mb-8 md:mb-12">
-        <div className="grid grid-cols-12 gap-4 md:gap-6 items-center">
+      <section className="mb-8 md:mb-12 items-center">
+        <div className="grid grid-cols-12 gap-4 md:gap-6">
           {/* слева текст на десктопе, сверху на мобиле */}
           <div className="col-span-12 md:col-span-6 order-2 md:order-1 text-[15px] md:text-base leading-relaxed [&>p]:whitespace-pre-line self-center">
             {a?.tocBefore5 && (
