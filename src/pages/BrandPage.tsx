@@ -37,7 +37,7 @@ export function BrandPage() {
       if (brandData.items[3]?.hoverImage) {
         setTeaseIndex(3);
         // скрыть через 2 сек
-        const hideTimer = window.setTimeout(() => setTeaseIndex(null), 2000);
+        const hideTimer = window.setTimeout(() => setTeaseIndex(null), 1000);
         return () => window.clearTimeout(hideTimer);
       }
     }, 3000);
