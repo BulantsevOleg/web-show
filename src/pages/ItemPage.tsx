@@ -55,6 +55,11 @@ export function ItemPage() {
 
   useDocumentTitle(`${item.name} — ${brandKey} — HANIFA MARKET`);
 
+  // перед этим можно вычислить флаги
+  const hasWB = Boolean(a?.wbLink);
+  const hasTG = Boolean(data.site.telegramLink);
+  const cols = hasWB && hasTG ? "grid-cols-2" : "grid-cols-1";
+
   return (
     <article className="max-w-[1100px] mx-auto px-4 md:px-6">
       <header className="mb-6 md:mb-8">
@@ -206,29 +211,33 @@ export function ItemPage() {
         <div className="text-xs md:text-sm opacity-80 text-center whitespace-pre-line">
           {data.site.footerNote || "Собери капсулу из наших айтемов\nили обратись к нам в чат и мы в этом поможем!"}
         </div>
-        <div className="mt-6 flex justify-center gap-4 md:gap-6">
-          {a?.wbLink ? (
+
+        {/* Кнопки одинакового размера и центрированы */}
+        <div className={`mt-6 grid ${cols} gap-3 md:gap-6 w-full max-w-[680px] mx-auto items-stretch`}>
+          {hasWB && (
             <a
-              href={a.wbLink}
+              href={a!.wbLink}
               target="_blank"
               rel="noreferrer"
-              className="px-6 md:px-8 py-3 rounded-full border border-black hover:bg-black hover:text-white transition"
+              className="w-full h-full px-4 py-3 rounded-full border border-black flex items-center justify-center text-base text-center leading-snug hover:bg-black hover:text-white transition"
             >
               Купить на WB
             </a>
-          ) : null}
-          {data.site.telegramLink && (
+          )}
+
+          {hasTG && (
             <a
-              href={data.site.telegramLink}
+              href={data.site.telegramLink!}
               target="_blank"
               rel="noreferrer"
-              className="px-6 md:px-8 py-3 rounded-full border border-black hover:bg-black hover:text-white transition"
+              className="w-full h-full px-4 py-3 rounded-full border border-black flex items-center justify-center text-base text-center leading-snug hover:bg_black hover:text-white transition"
             >
               Задать вопрос в Telegram
             </a>
           )}
         </div>
       </footer>
+
     </article>
   );
 }
