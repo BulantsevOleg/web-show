@@ -29,6 +29,7 @@ function setByPath(obj: any, dotted: string, val: unknown) {
   dst[last] = val;
 }
 
+
 /** Гарантируем длину массива (обрезаем/дополняем) */
 function ensureLen<T>(arr: T[] | undefined, n: number, fill: T): T[] {
   const a = Array.isArray(arr) ? arr.slice() : [];
@@ -132,11 +133,24 @@ export default function AdminEditor() {
   function moveItem(brandKey: string, idx: number, dir: -1 | 1) {
     setLocal((prev) => {
       if (!prev) return prev;
-      const arr = prev.brands[brandKey].items;
+      const items = prev.brands[brandKey].items;
       const j = idx + dir;
-      if (j < 0 || j >= arr.length) return prev;
-      [arr[idx], arr[j]] = [arr[j], arr[idx]];
-      return { ...prev };
+      if (j < 0 || j >= items.length) return prev;
+  
+      // создаём новый массив и меняем элементы местами
+      const nextItems = items.slice();
+      [nextItems[idx], nextItems[j]] = [nextItems[j], nextItems[idx]];
+  
+      return {
+        ...prev,
+        brands: {
+          ...prev.brands,
+          [brandKey]: {
+            ...prev.brands[brandKey],
+            items: nextItems,
+          },
+        },
+      };
     });
   }
 
@@ -329,17 +343,19 @@ function validateDraft(reg: Registry): DraftError[] {
 
         {/* Айтемы (по всем брендам простая форма) */}
         <div className="p-4 border border-black rounded-xl">
-          <div className="text-sm mb-2">Айтемы</div>
+          <div className="text-sm mb-2">
+            Айтемы <span className="opacity-60">(меняйте порядок стрелками)</span>
+          </div>
           {brands.length === 0 ? (
             <div className="text-xs opacity-70">Добавьте бренд</div>
           ) : (
             brands.map((bk) => (
               <div key={bk} className="mb-6">
                 <div className="font-bold mb-2">{bk}</div>
-
-                {local.brands[bk].items.map((it, idx) => (
-                  <div key={bk + idx} className="border border-black/20 rounded-xl p-3 mb-2">
-                    {/* Заголовок/управление айтемом */}
+                {local.brands[bk].items.map((it, idx) => {
+                  const stableKey = `${bk}:${it.slug || slugify(it.name)}`;
+                  return (
+                    <div key={stableKey} className="border border-black/20 rounded-xl p-3 mb-2">
                     <div className="flex items-center gap-2">
                       <input
                         className="border border-black rounded-xl px-2 py-1 text-sm flex-1"
@@ -353,15 +369,22 @@ function validateDraft(reg: Registry): DraftError[] {
                           })
                         }
                       />
+                      {/* Кнопки порядка — ТОЛЬКО стрелки */}
                       <button
-                        className="text-xs px-2 py-1 border rounded-xl"
+                        className="text-xs px-2 py-1 border rounded-xl disabled:opacity-40 disabled:cursor-not-allowed"
                         onClick={() => moveItem(bk, idx, -1)}
+                        disabled={idx === 0}
+                        aria-label="Поднять выше"
+                        title="Поднять выше"
                       >
                         ↑
                       </button>
                       <button
-                        className="text-xs px-2 py-1 border rounded-xl"
+                        className="text-xs px-2 py-1 border rounded-xl disabled:opacity-40 disabled:cursor-not-allowed"
                         onClick={() => moveItem(bk, idx, 1)}
+                        disabled={idx === local.brands[bk].items.length - 1}
+                        aria-label="Опустить ниже"
+                        title="Опустить ниже"
                       >
                         ↓
                       </button>
@@ -372,44 +395,43 @@ function validateDraft(reg: Registry): DraftError[] {
                         Удалить
                       </button>
                     </div>
-
-                    {/* base/hover изображения карточки */}
-                    <div className="flex items-center gap-3 mt-2">
-                      <label className="text-xs underline cursor-pointer">
-                        Base image
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) =>
-                            e.target.files &&
-                            uploadImage(bk, `items.${idx}.baseImage`, e.target.files[0])
-                          }
-                        />
-                      </label>
-                      <span className="text-[11px] opacity-70 break-all">
-                        {it.baseImage || "не задано"}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-3 mt-1">
-                      <label className="text-xs underline cursor-pointer">
-                        Hover image
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) =>
-                            e.target.files &&
-                            uploadImage(bk, `items.${idx}.hoverImage`, e.target.files[0])
-                          }
-                        />
-                      </label>
-                      <span className="text-[11px] opacity-70 break-all">
-                        {it.hoverImage || "не задано"}
-                      </span>
-                    </div>
-
+                  
+                  {/* base/hover изображения карточки — без изменений */}
+                  <div className="flex items-center gap-3 mt-2">
+                    <label className="text-xs underline cursor-pointer">
+                      Base image
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) =>
+                          e.target.files &&
+                          uploadImage(bk, `items.${idx}.baseImage`, e.target.files[0])
+                        }
+                      />
+                    </label>
+                    <span className="text-[11px] opacity-70 break-all">
+                      {it.baseImage || "не задано"}
+                    </span>
+                  </div>
+              
+                  <div className="flex items-center gap-3 mt-1">
+                    <label className="text-xs underline cursor-pointer">
+                      Hover image
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) =>
+                          e.target.files &&
+                          uploadImage(bk, `items.${idx}.hoverImage`, e.target.files[0])
+                        }
+                      />
+                    </label>
+                    <span className="text-[11px] opacity-70 break-all">
+                      {it.hoverImage || "не задано"}
+                    </span>
+                  </div>
                     <div className="mt-3">
                     <div className="text-xs mb-2 opacity-70">Фотографии статьи (до 7)</div>
                     <div className="grid grid-cols-7 gap-2">
@@ -637,7 +659,8 @@ function validateDraft(reg: Registry): DraftError[] {
                       );
                     })()}
                   </div>
-                ))}
+                  );
+                })}
 
                 <div className="flex gap-2">
                   <input
