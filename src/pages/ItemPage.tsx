@@ -102,7 +102,7 @@ export function ItemPage() {
 
       {/* 2) Фото слева, справа текст (+ опциональный подзаголовок) */}
       <section className="mb-8 md:mb-12">
-        <div className="grid grid-cols-12 gap-4 md:gap-6 items-start">
+        <div className="grid grid-cols-12 gap-4 md:gap-6 items-center">
           <div className="col-span-12 md:col-span-6 order-1">
             <figure>
               <img src={img(1)} alt={`${item.name} 2`} className="w-full h-auto object-cover" />
@@ -142,38 +142,27 @@ export function ItemPage() {
       </section>
 
       {/* 6) Фото справа, слева текст (+ оглавление) */}
+      {/* Текст 5 + Фото 5 — в одной секции, выровнены по центру */}
       <section className="mb-8 md:mb-12">
-        <div className="grid grid-cols-12 gap-4 md:gap-6 items-start">
-          <div className="col-span-12 md:col-span-6 order-2 md:order-1 text-[15px] md:text-base leading-relaxed [&>p]:whitespace-pre-line">
-            {a?.tocBefore6 && (
+        <div className="grid grid-cols-12 gap-4 md:gap-6 items-center">
+          {/* слева текст на десктопе, сверху на мобиле */}
+          <div className="col-span-12 md:col-span-6 order-2 md:order-1 text-[15px] md:text-base leading-relaxed [&>p]:whitespace-pre-line self-center">
+            {a?.tocBefore5 && (
               <h3 className="text-lg md:text-xl leading-tight mb-3 font-bold tracking-tight text-center mt-3 md:mt-0">
-                {a.tocBefore6}
+                {a.tocBefore5}
               </h3>
             )}
-            {txt(3) && <p>{txt(3)}</p>}
+            {txt(4) && <p>{txt(4)}</p>}
           </div>
 
-          <div className="col-span-12 md:col-span-6 order-1 md:order-2">
+          {/* справа фото на десктопе, ниже на мобиле */}
+          <div className="col-span-12 md:col-span-6 order-1 md:order-2 self-center">
             <figure>
               <img src={img(4)} alt={`${item.name} 5`} className="w-full h-auto object-cover" />
             </figure>
           </div>
         </div>
       </section>
-
-      {/* Дополнительные тексты до 6-й фото */}
-      {txt(4) && (
-        <section className="mb-8 md:mb-12">
-          <div className="text-[15px] md:text-base leading-relaxed [&>p]:whitespace-pre-line max-w-[880px] mx-auto">
-            {a?.tocBefore5 && (
-              <h3 className="text-lg md:text-xl leading-tight mb-3 font-bold tracking-tight text-center">
-                {a.tocBefore5}
-              </h3>
-            )}
-            <p className="mb-0">{txt(4)}</p>
-          </div>
-        </section>
-      )}
 
       {txt(5) && (
         <section className="mb-8 md:mb-12">
