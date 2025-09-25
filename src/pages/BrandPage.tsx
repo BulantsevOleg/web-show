@@ -154,9 +154,13 @@ function BrandCardImage({
       {/* подпись */}
       {label && (
         <div
+          // className={
+          //   "absolute bottom-2 left-2 text-[10px] sm:text-xs text-black/90 bg-white/50 backdrop-blur px-1.5 py-0.5 rounded " +
+          //   (showHover ? "opacity-0" : "opacity-100 transition-opacity duration-200")
+          // }
           className={
-            "absolute bottom-2 left-2 text-[10px] sm:text-xs text-black/90 bg-white/50 backdrop-blur px-1.5 py-0.5 rounded " +
-            (showHover ? "opacity-0" : "opacity-100 transition-opacity duration-200")
+            "absolute bottom-2 left-2 text-[10px] sm:text-xs text-black bg-transparent transition-opacity " +
+            (hideLabel ? "opacity-0" : "opacity-100")
           }
         >
           {label}
