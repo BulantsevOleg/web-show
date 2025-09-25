@@ -160,7 +160,7 @@ function BrandCardImage({
           // }
           className={
             "absolute bottom-2 left-2 text-[10px] sm:text-xs text-black bg-transparent transition-opacity " +
-            (hideLabel ? "opacity-0" : "opacity-100")
+            (showHover ? "opacity-0" : "opacity-100")
           }
         >
           {label}
