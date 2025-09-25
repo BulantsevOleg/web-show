@@ -105,10 +105,12 @@ export default function AdminEditor() {
           blocks: ["", "", "", "", "", "", ""],
           images: ["", "", "", "", "", "", ""],
           wbLink: "",
+          tocBefore1: "",
           tocBefore2: "",
+          tocBefore5: "",
           tocBefore6: "",
         },
-      };
+      };      
       return {
         ...prev,
         brands: {
@@ -477,7 +479,26 @@ function validateDraft(reg: Registry): DraftError[] {
                                 }
                               />
                             </label>
-
+                            <label className="text-xs">
+                              Подзаголовок перед блоком 1
+                              <input
+                                className="mt-1 w-full border rounded-xl px-2 py-1 text-sm"
+                                value={a.tocBefore1 || ""}
+                                onChange={(e) =>
+                                  setLocal((prev) => {
+                                    if (!prev) return prev;
+                                    const art =
+                                      (prev.brands[bk].items[idx].article =
+                                        prev.brands[bk].items[idx].article || {
+                                          blocks: [],
+                                          images: [],
+                                        });
+                                    art.tocBefore1 = e.target.value;
+                                    return { ...prev };
+                                  })
+                                }
+                              />
+                            </label>
                             <label className="text-xs">
                               Подзаголовок перед блоком 2
                               <input
@@ -498,7 +519,26 @@ function validateDraft(reg: Registry): DraftError[] {
                                 }
                               />
                             </label>
-
+                            <label className="text-xs">
+                              Подзаголовок перед блоком 5
+                              <input
+                                className="mt-1 w-full border rounded-xl px-2 py-1 text-sm"
+                                value={a.tocBefore5 || ""}
+                                onChange={(e) =>
+                                  setLocal((prev) => {
+                                    if (!prev) return prev;
+                                    const art =
+                                      (prev.brands[bk].items[idx].article =
+                                        prev.brands[bk].items[idx].article || {
+                                          blocks: [],
+                                          images: [],
+                                        });
+                                    art.tocBefore5 = e.target.value;
+                                    return { ...prev };
+                                  })
+                                }
+                              />
+                            </label>
                             <label className="text-xs">
                               Подзаголовок перед блоком 6
                               <input
