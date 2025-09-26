@@ -152,7 +152,8 @@ export function ItemPage() {
                 {a.tocBefore5}
               </h3>
             )}
-            {txt(4) && <p>{txt(4)}</p>}
+            {txt(3) && <p>{txt(3)}</p>}
+            {/* {txt(4) && <p>{txt(4)}</p>} */}
           </div>
 
           {/* справа фото на десктопе, ниже на мобиле */}
@@ -169,6 +170,13 @@ export function ItemPage() {
         <h3 className="text-lg md:text-xl leading-tight mb-3 font-bold tracking-tight text-center mt-3 md:mt-0">
           {a.tocBefore6}
         </h3>
+      )}
+      {txt(4) && (
+        <section className="mb-8 md:mb-12">
+          <div className="text-[15px] md:text-base leading-relaxed [&>p]:whitespace-pre-line max-w-[880px] mx-auto">
+            <p className="mb-0">{txt(4)}</p>
+          </div>
+        </section>
       )}      
       {txt(5) && (
         <section className="mb-8 md:mb-12">
