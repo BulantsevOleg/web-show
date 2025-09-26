@@ -157,7 +157,7 @@ function BrandCardImage({
         />
       )}
 
-      {/* подпись */}
+      {/* подпись
       {label && (
         <div
           // className={
@@ -171,7 +171,7 @@ function BrandCardImage({
         >
           {label}
         </div>
-      )}
+      )} */}
     </div>
   );
 }
