@@ -68,13 +68,16 @@ export function HomePage() {
     <div className="min-h-screen grid grid-rows-[auto,1fr,auto,1fr,auto,auto]">
       {/* Row 1: HANIFA MARKET logo */}
       <div className="w-full flex justify-center pt-6 md:pt-8">
-        {site.hanifaLogo && (
-          <img 
-            src={assetUrl(site.hanifaLogo)}
-            alt="HANIFA MARKET"
-            className="object-contain max-w-[420px] w-[22vw] min-w-[260px]"
-          />
-        )}
+        <div className="h-16 md:h-20 flex items-center justify-center">
+          {site.hanifaLogo && (
+            <img
+              src={assetUrl(site.hanifaLogo)}
+              alt="HANIFA MARKET"
+              className="h-full w-auto object-contain"
+              decoding="async"
+            />
+          )}
+        </div>
       </div>
 
       <div></div>
