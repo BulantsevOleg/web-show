@@ -81,10 +81,14 @@ export function HomePage() {
 
       {/* Row 3: note + brand logos */}
       <div className="flex flex-col items-center w-full">
-        <div className="text-base md:text-lg text-center mt-6 opacity-80 px-4 leading-tight whitespace-nowrap">
-          {site.heroNote}
+        {/* единая полоса-шапка */}
+        <div className="relative w-full mt-6 h-10 md:h-12 flex items-center justify-center">
+          <div className="text-base md:text-lg text-center opacity-80 px-4 whitespace-nowrap">
+            {site.heroNote}
+          </div>
         </div>
-        <div className="w-full flex flex-col md:flex-row items-center justify-center gap-8 md:gap-10 mt-6 relative top-2 md:top-3">
+        {/* сетка брендов — чуть подвинем, уберём «скачок» от относительного сдвига */}
+        <div className="w-full flex flex-col md:flex-row items-center justify-center gap-8 md:gap-10 mt-6">
           {order.map((brandKey) => (
             <BrandLogo key={brandKey} brandKey={brandKey} />
           ))}
