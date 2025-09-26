@@ -613,7 +613,8 @@ function validateDraft(reg: Registry): DraftError[] {
                           </div>
 
                           {/* Фото 0..6 */}
-                          <div className="mt-3 grid md:grid-cols-2 gap-3">
+                          {/* убрал лишние фото */}
+                          {/* <div className="mt-3 grid md:grid-cols-2 gap-3">
                             {images.map((path, ii) => (
                               <div key={ii} className="text-xs border rounded-xl p-2">
                                 <div className="mb-1 font-medium">Фото {ii + 1}</div>
@@ -640,7 +641,7 @@ function validateDraft(reg: Registry): DraftError[] {
                                 </div>
                               </div>
                             ))}
-                          </div>
+                          </div> */}
 
                           {/* Превью айтема */}
                           <div className="mt-3">
