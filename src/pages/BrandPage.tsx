@@ -50,14 +50,18 @@ export function BrandPage() {
       {/* Логотип бренда */}
       <div className="pt-8 md:pt-12 flex flex-col items-center">
         <div className="w-full flex items-center justify-center">
-          {brandData.brandLogo && (
-            <img
-              src={assetUrl(brandData.brandLogo)}
-              alt={brandKey}
-              className="object-contain max-w-[380px] w-[20vw] min-w-[260px]"
-            />
-          )}
+          <div className="h-16 md:h-20 flex items-center justify-center">
+            {brandData.brandLogo && (
+              <img
+                src={assetUrl(brandData.brandLogo)}
+                alt={brandKey}
+                className="h-full w-auto object-contain"
+                decoding="async"
+              />
+            )}
+          </div>
         </div>
+
 
         <div className="relative w-full mt-6 h-10 md:h-12 flex items-center justify-center">
           <Link
@@ -69,7 +73,7 @@ export function BrandPage() {
           </Link>
 
           <div className="text-base md:text-lg text-center opacity-80 px-4 whitespace-nowrap">
-            Выбери свой предмет гардероба:
+            Выбери свой предмет гардероба
           </div>
         </div>
 
