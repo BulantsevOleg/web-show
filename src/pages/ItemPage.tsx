@@ -62,24 +62,20 @@ export function ItemPage() {
 
   return (
     <article className="max-w-[1100px] mx-auto px-4 md:px-6">
-      <header className="mb-6 md:mb-8">
-        <h1 className="text-xl md:text-2xl tracking-tight text-center">{item.name}</h1>
+      <header className="relative py-6 md:py-8 border-b border-black/10 mb-6 md:mb-8">
+        <Link
+          to={`/catalog/${encodeURIComponent(brandKey)}`}
+          className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 inline-flex items-center gap-2 text-xs md:text-sm opacity-70 hover:opacity-100"
+        >
+          <span className="text-lg leading-none">←</span>
+          <span>назад</span>
+        </Link>
 
-        <div className="relative w-screen mt-2 left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
-          <Link
-            to={`/catalog/${encodeURIComponent(brandKey)}`}
-            className="absolute left-5 md:left-10 top-1/2 -translate-y-1/2 inline-flex items-center gap-2 text-xs md:text-sm opacity-70 hover:opacity-100 z-10"
-          >
-            <span className="text-lg leading-none">←</span>
-            <span>назад</span>
-          </Link>
-
-          <div className="text-[11px] md:text-xs opacity-60 text-center">
-            <div className="max-w-[1100px] mx-auto px-4 md:px-6">Бренд: {brandKey}</div>
-          </div>
+        <div className="text-center">
+          <h1 className="text-xl md:text-2xl tracking-tight">{item.name}</h1>
+          <div className="text-[11px] md:text-xs opacity-60 mt-1">Бренд: {brandKey}</div>
         </div>
       </header>
-
       {/* Лид */}
       <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen mb-6 md:mb-10">
         <img src={img(0)} alt={`${item.name} — лид`} className="w-screen md:h-[66vh] object-cover" />
