@@ -59,7 +59,7 @@ export function BrandPage() {
           )}
         </div>
 
-        <div className="relative w-full mt-6">
+        <div className="relative w-full mt-6 h-10 md:h-12 flex items-center justify-center">
           <Link
             to="/"
             className="absolute left-5 md:left-10 top-1/2 -translate-y-1/2 inline-flex items-center gap-2 text-xs md:text-sm opacity-70 hover:opacity-100 z-10"
@@ -67,10 +67,12 @@ export function BrandPage() {
             <span className="text-lg leading-none">←</span>
             <span>назад</span>
           </Link>
-          <div className="text-base md:text-lg text-center opacity-80 px-4 whitespace-nowrap mx-auto">
+
+          <div className="text-base md:text-lg text-center opacity-80 px-4 whitespace-nowrap">
             Выбери свой предмет гардероба:
           </div>
         </div>
+
       </div>
 
       {/* Сетка товаров */}
