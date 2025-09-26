@@ -40,7 +40,7 @@ export function BrandPage() {
         const hideTimer = window.setTimeout(() => setTeaseIndex(null), 1000);
         return () => window.clearTimeout(hideTimer);
       }
-    }, 3000);
+    }, 1500);
 
     return () => window.clearTimeout(showTimer);
   }, [brandKey, brandData.items]);
