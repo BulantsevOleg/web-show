@@ -542,7 +542,7 @@ function validateDraft(reg: Registry): DraftError[] {
                               />
                             </label>
                             <label className="text-xs">
-                              Подзаголовок перед блоком 5
+                              Подзаголовок перед блоком 4
                               <input
                                 className="mt-1 w-full border rounded-xl px-2 py-1 text-sm"
                                 value={a.tocBefore5 || ""}
@@ -562,7 +562,7 @@ function validateDraft(reg: Registry): DraftError[] {
                               />
                             </label>
                             <label className="text-xs">
-                              Подзаголовок перед блоком 6
+                              Подзаголовок перед блоком 5
                               <input
                                 className="mt-1 w-full border rounded-xl px-2 py-1 text-sm"
                                 value={a.tocBefore6 || ""}
