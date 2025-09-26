@@ -232,7 +232,7 @@ export function ItemPage() {
               href={data.site.telegramLink!}
               target="_blank"
               rel="noreferrer"
-              className="w-full h-full px-4 py-3 rounded-full border border-black flex items-center justify-center text-base text-center leading-snug hover:bg_black hover:text-white transition"
+              className="w-full h-full px-4 py-3 rounded-full border border-black flex items-center justify-center text-base text-center leading-snug hover:bg-black hover:text-white transition"
             >
               Задать вопрос в Telegram
             </a>
